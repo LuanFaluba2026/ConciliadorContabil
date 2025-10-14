@@ -33,6 +33,8 @@
             ProcessButton = new Button();
             OpenFileButton = new Button();
             logBox = new TextBox();
+            ListarContas = new Button();
+            ListarMovimentacao = new Button();
             SuspendLayout();
             // 
             // openFileDialog1
@@ -74,11 +76,33 @@
             logBox.Size = new Size(487, 146);
             logBox.TabIndex = 3;
             // 
+            // ListarContas
+            // 
+            ListarContas.Location = new Point(383, 209);
+            ListarContas.Name = "ListarContas";
+            ListarContas.Size = new Size(123, 29);
+            ListarContas.TabIndex = 4;
+            ListarContas.Text = "Listar Contas";
+            ListarContas.UseVisualStyleBackColor = true;
+            ListarContas.Click += ListarContas_Click;
+            // 
+            // ListarMovimentacao
+            // 
+            ListarMovimentacao.Location = new Point(219, 209);
+            ListarMovimentacao.Name = "ListarMovimentacao";
+            ListarMovimentacao.Size = new Size(158, 29);
+            ListarMovimentacao.TabIndex = 5;
+            ListarMovimentacao.Text = "Listar Movimentaçoes";
+            ListarMovimentacao.UseVisualStyleBackColor = true;
+            ListarMovimentacao.Click += ListarMovimentacao_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(516, 215);
+            ClientSize = new Size(524, 250);
+            Controls.Add(ListarMovimentacao);
+            Controls.Add(ListarContas);
             Controls.Add(logBox);
             Controls.Add(OpenFileButton);
             Controls.Add(ProcessButton);
@@ -97,5 +121,7 @@
         private Button ProcessButton;
         private Button OpenFileButton;
         private TextBox logBox;
+        private Button ListarContas;
+        private Button ListarMovimentacao;
     }
 }

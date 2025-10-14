@@ -22,19 +22,17 @@ namespace Conciliacao_Plamev
             sw.Start();
             await Task.Run(() =>
             {
-                Dictionary<string, List<(string, string, string, string, string, string)>> dic = conv.Conversao();
-                sheetL.CreateSheet(dic);
+                conv.Conversao();
+                sheetL.CreateSheet();
 
 
                 Invoke(new Action(() =>
                 {
-                    foreach (var i in dic)
+                    foreach (var contas in Program.contasCadastradas)
                     {
-                        foreach (var j in i.Value)
-                        {
-                            Debug.WriteLine(j.ToString());
-                            logBox.AppendText($"{j.ToString()}\r\n");
-                        }
+                        string log = $"{contas.codigo} / {contas.contaAnalitica} / {contas.nomeFornecedor} / {contas.saldo}";
+                        Debug.WriteLine(log);
+                        logBox.AppendText($"{log}\r\n");
                     }
                 }));
 
@@ -43,9 +41,20 @@ namespace Conciliacao_Plamev
             logBox.AppendText($"\r\n Processamento Concluído ! ({sw.Elapsed.ToString(@"hh\:mm\:ss")})");
         }
 
-        public void MostrarLog(Dictionary<string, List<(string, string, string, string, string, string)>> dic)
+        private void ListarContas_Click(object sender, EventArgs e)
         {
-            
+            foreach (var contas in Program.contasCadastradas)
+            {
+                Debug.WriteLine($"{contas.codigo} / {contas.contaAnalitica} / {contas.nomeFornecedor} / {contas.saldo}");
+            }
+        }
+
+        private void ListarMovimentacao_Click(object sender, EventArgs e)
+        {
+            foreach (var contas in Program.movimentacoes)
+            {
+                Debug.WriteLine($"{contas.codigoForn} / {contas.dataLancamento} / {contas.historico} / {contas.debito} / {contas.credito}");
+            }
         }
     }
 }

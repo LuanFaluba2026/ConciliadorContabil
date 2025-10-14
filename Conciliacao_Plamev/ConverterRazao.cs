@@ -12,17 +12,18 @@ namespace Conciliacao_Plamev
 {
     internal class ConverterRazao
     {
-        string razaoPath = @"C:\Users\luan\Downloads\teste.xlsx";
+        Form1 form = new();
+        string razaoPath = @"C:\Users\secun\Downloads\emcasa\teste.xlsx";
         public Dictionary<string, List<(string, string, string, string, string, string)>> Conversao()
         {
             Dictionary<string, List<(string, string, string, string, string, string)>> linhas = new();
 
-
+                
             using (var wb = new XLWorkbook(razaoPath))
             {
                 var ws = wb.Worksheet(1);
 
-                for(int i = 2; i <= 1000 /*ws.RowsUsed().Count()*/; i++)
+                for(int i = 2; i <= ws.RowsUsed().Count(); i++)
                 {
                     
                     var row = ws.Row(i);
@@ -47,13 +48,6 @@ namespace Conciliacao_Plamev
                         {
                             ("val", dataLançamento, historicoLancamento, valorCredito, valorDebito, "0")
                         };
-                    }
-                }
-                foreach(var i in linhas)
-                {
-                    foreach(var j in i.Value)
-                    {
-                        Debug.WriteLine(j.ToString());
                     }
                 }
             }

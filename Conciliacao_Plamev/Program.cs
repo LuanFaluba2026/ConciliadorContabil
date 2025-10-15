@@ -9,7 +9,6 @@ namespace Conciliacao_Plamev
 
         public static List<CodigoContas> contasCadastradas = new List<CodigoContas>();
         public static List<Movimentacao> movimentacoes = new List<Movimentacao>();
-        public static List<MovimentosAbertos> saldosEmAberto = new List<MovimentosAbertos>();
         public static void CadastrarConta(string codigo, string contaAnalitica, string nomeFornecedor, double saldo)
         {
             var conta = new CodigoContas
@@ -34,19 +33,6 @@ namespace Conciliacao_Plamev
                 notaRef = notaRef
             };
             movimentacoes.Add(movimentacao);
-        }
-
-        public static void CadastrarSaldo(string codigoForn, string dataMov, string notaRef, string historico, double credito)
-        {
-            var saldoAb = new MovimentosAbertos
-            {
-                codigoForn = codigoForn,
-                dataMov = dataMov,
-                notaRef = notaRef,
-                historico = historico,
-                credito = credito
-            };
-            saldosEmAberto.Add(saldoAb);
         }
 
         [STAThread]

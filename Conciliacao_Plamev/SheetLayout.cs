@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection.PortableExecutable;
@@ -15,7 +16,7 @@ namespace Conciliacao_Plamev
     public class SheetLayout
     {
 
-        string path = @"C:\Users\secun\Downloads\emcasa\Fornecedores.xlsx";
+        string path = @"C:\Users\luan\Downloads\Fornecedores.xlsx";
         Form1 form = new();
         public void CreateSheet()
         {
@@ -23,7 +24,7 @@ namespace Conciliacao_Plamev
             var ws = wb.Worksheets.Add("Fornecedores");
 
             //layout fixo;
-            const int alturaFixa = 5;
+            const int alturaFixa = 6;
             int linhasUsadas = 1;
 
             ws.Cell("A1").Value = "Data";
@@ -39,22 +40,22 @@ namespace Conciliacao_Plamev
             ws.Column("H").Width = 24.71;
 
 
-            
 
 
+            List<MovimentosAbertos> saldos = BancoDeDados.GetSaldos().Where(s => Form1.competencia > DateTime.Parse(s.dataMov)).ToList(); ;
             foreach (var contas in Program.contasCadastradas)
             {
                 ws.Cell(1 + linhasUsadas, "A").Value = "Conta:";
 
 
-                ws.Cell(2 + linhasUsadas, "C").Value = "SALDO ANTERIOR";
+                ws.Cell(3 + linhasUsadas, "C").Value = "SALDO ANTERIOR";
                 ws.Cell(1 + linhasUsadas, "C").Value = contas.codigo;
                 ws.Cell(1 + linhasUsadas, "B").Value = contas.contaAnalitica;
                 ws.Cell(1 + linhasUsadas, "D").Value = contas.nomeFornecedor;
-                ws.Cell(2 + linhasUsadas, "F").Value = contas.saldo;
+                ws.Cell(3 + linhasUsadas, "F").Value = contas.saldo;
 
                 //soma
-                ws.Cell(alturaFixa - 1 + linhasUsadas, "H").FormulaA1 = $"=SUM(E{linhasUsadas + 2}:F{linhasUsadas + alturaFixa - 1})";
+                ws.Cell(alturaFixa - 1 + linhasUsadas, "H").FormulaA1 = $"=SUM(E{linhasUsadas + 3}:F{linhasUsadas + alturaFixa - 1})";
                 //personalização
                 ws.Cell(1 + linhasUsadas, "C").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                 ws.Cell(1 + linhasUsadas, "C").Style.Font.Bold = true;
@@ -66,10 +67,11 @@ namespace Conciliacao_Plamev
 
                 linhasUsadas += alturaFixa;
 
-                var saldos = Program.saldosEmAberto.Where(x => x.codigoForn == contas.codigo);
-                foreach(var s in saldos)
+                var saldosPorConta = saldos.Where(x => x.codigoForn == contas.codigo);
+
+                foreach(var s in saldosPorConta)
                 {
-                    var row = ws.Row(2 + linhasUsadas - alturaFixa).InsertRowsBelow(1);
+                    var row = ws.Row(3 + linhasUsadas - alturaFixa).InsertRowsAbove(1);
                     linhasUsadas++;
                     foreach (var cells in row)
                     {
@@ -81,30 +83,52 @@ namespace Conciliacao_Plamev
                         cells.Cell("F").Style.Font.FontColor = XLColor.Red;
                     }
                 }
+
+
+
                 List<Movimentacao> mov = Program.movimentacoes.Where(x => x.codigoForn == contas.codigo).ToList();
 
-                var numRepetido = mov.GroupBy(n => n.notaRef).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
-                var valDebtRepetido = mov.GroupBy(n => n.debito).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
-                var valCredRepetido = mov.GroupBy(n => n.credito).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+                var remover = new HashSet<Movimentacao>();
 
-                mov.RemoveAll(x => numRepetido.Contains(x.notaRef) && valDebtRepetido.Contains(x.debito) || valCredRepetido.Contains(x.credito));
-                Program.movimentacoes.RemoveAll(x => numRepetido.Contains(x.notaRef) && valDebtRepetido.Contains(x.debito) || valCredRepetido.Contains(x.credito));
+                foreach (var grupo in mov.GroupBy(x => x.notaRef))
+                {
+                    var creditos = grupo.Where(x => x.credito > 0).ToList();
+                    var debitos = grupo.Where(x => x.debito < 0).ToList();
+
+                    foreach (var c in creditos)
+                    {
+                        var d = debitos.FirstOrDefault(x => Math.Abs(x.debito + c.credito) < 0.01);
+                        if (d != null)
+                        {
+                            remover.Add(c);
+                            remover.Add(d);
+                            debitos.Remove(d);
+                        }
+                    }
+                }
+
+                mov.RemoveAll(x => remover.Contains(x));
+
+                //Program.movimentacoes.RemoveAll(x => numRepetido.Contains(x.notaRef) && (valDebtRepetido.Contains(x.debito) || valDebtRepetido.Contains(x.credito)));
+
+                /*mov.RemoveAll(x => x.debito == contas.saldo); //ATENÇÃO ALTERAR REGRA
+                Program.movimentacoes.RemoveAll(x => x.debito == contas.saldo); // ATENÇÃO ALTERAR REGRA*/
 
                 foreach (var movimento in mov)
                 {
-                    var row = ws.Row(linhasUsadas - alturaFixa + 3).InsertRowsBelow(1);
+                    var row = ws.Row(linhasUsadas - alturaFixa + 4).InsertRowsBelow(1);
                     linhasUsadas++;
 
-                    if(!Program.saldosEmAberto.Any(x => x.notaRef == movimento.notaRef && x.dataMov == movimento.dataLancamento))
+                    /*if (!dt.Select($"historico = '{movimento.historico}'").Any())
                     {
-                        Program.CadastrarSaldo(
-                        movimento.codigoForn ?? "",
-                        movimento.dataLancamento ?? "",
-                        movimento.notaRef ?? "",
-                        movimento.historico ?? "",
-                        movimento.credito
-                        );
-                    }
+                        */BancoDeDados.AddSaldo(new MovimentosAbertos() {
+                            codigoForn =  movimento.codigoForn ?? "",
+                            dataMov = movimento.dataLancamento ?? "",
+                            notaRef = movimento.notaRef ?? "",
+                            historico = movimento.historico ?? "",
+                            credito = movimento.credito
+                        });/*
+                    }*/
 
                     foreach (var cells in row)
                     {
@@ -113,7 +137,6 @@ namespace Conciliacao_Plamev
                         cells.Cell("E").Value = movimento.debito;
                         cells.Cell("F").Value = movimento.credito;
                     }
-
                 }
             }
 

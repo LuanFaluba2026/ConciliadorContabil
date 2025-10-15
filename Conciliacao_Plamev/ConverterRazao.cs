@@ -13,7 +13,7 @@ namespace Conciliacao_Plamev
     internal class ConverterRazao
     {
         Form1 form = new();
-        string razaoPath = @"C:\Users\secun\Downloads\emcasa\teste.xlsx";
+        string razaoPath = @"C:\Users\luan\Downloads\mes otcho.xlsx";
         public void Conversao()
         {
             Dictionary<string, List<(string, string, string, string, string, string)>> linhas = new();
@@ -23,7 +23,7 @@ namespace Conciliacao_Plamev
             {
                 var ws = wb.Worksheet(1);
 
-                for(int i = 2; i <= 1000 /*ws.RowsUsed().Count()*/; i++)
+                for(int i = 2; i <= 1000 /*ws.RowsUsed().Count()*/; i++) 
                 {
                     
                     var row = ws.Row(i);
@@ -79,7 +79,9 @@ namespace Conciliacao_Plamev
             string[] possiveisCombinacoes =
             {
                 "NFS",
-                "NF"
+                "NF",
+                "REF.",
+                "VR.NF"
             };
             foreach(var c in possiveisCombinacoes)
             {
@@ -92,6 +94,7 @@ namespace Conciliacao_Plamev
                     n = n.StartsWith("2025") ? n.Substring(4) : n;
                     n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
                     n = n.TrimStart('0');
+                    //Debug.WriteLine(n);
                     return n;
                 }
             }

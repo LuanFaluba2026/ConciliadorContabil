@@ -33,8 +33,9 @@
             ProcessButton = new Button();
             OpenFileButton = new Button();
             logBox = new TextBox();
-            ListarContas = new Button();
-            ListarMovimentacao = new Button();
+            GerenciarSaldos = new Button();
+            label1 = new Label();
+            competenciaTextBox = new TextBox();
             SuspendLayout();
             // 
             // openFileDialog1
@@ -43,14 +44,14 @@
             // 
             // pathTextBox
             // 
-            pathTextBox.Location = new Point(12, 13);
+            pathTextBox.Location = new Point(12, 41);
             pathTextBox.Name = "pathTextBox";
             pathTextBox.Size = new Size(326, 23);
             pathTextBox.TabIndex = 0;
             // 
             // ProcessButton
             // 
-            ProcessButton.Location = new Point(397, 5);
+            ProcessButton.Location = new Point(397, 33);
             ProcessButton.Name = "ProcessButton";
             ProcessButton.Size = new Size(109, 37);
             ProcessButton.TabIndex = 1;
@@ -60,7 +61,7 @@
             // 
             // OpenFileButton
             // 
-            OpenFileButton.Location = new Point(344, 12);
+            OpenFileButton.Location = new Point(344, 40);
             OpenFileButton.Name = "OpenFileButton";
             OpenFileButton.Size = new Size(27, 24);
             OpenFileButton.TabIndex = 2;
@@ -69,40 +70,49 @@
             // 
             // logBox
             // 
-            logBox.Location = new Point(19, 57);
+            logBox.Location = new Point(19, 85);
             logBox.Multiline = true;
             logBox.Name = "logBox";
             logBox.ReadOnly = true;
             logBox.Size = new Size(487, 146);
             logBox.TabIndex = 3;
             // 
-            // ListarContas
+            // GerenciarSaldos
             // 
-            ListarContas.Location = new Point(383, 209);
-            ListarContas.Name = "ListarContas";
-            ListarContas.Size = new Size(123, 29);
-            ListarContas.TabIndex = 4;
-            ListarContas.Text = "Listar Contas";
-            ListarContas.UseVisualStyleBackColor = true;
-            ListarContas.Click += ListarContas_Click;
+            GerenciarSaldos.Location = new Point(383, 237);
+            GerenciarSaldos.Name = "GerenciarSaldos";
+            GerenciarSaldos.Size = new Size(123, 29);
+            GerenciarSaldos.TabIndex = 4;
+            GerenciarSaldos.Text = "Gerenciar Saldos";
+            GerenciarSaldos.UseVisualStyleBackColor = true;
+            GerenciarSaldos.Click += GerenciarSaldos_Click;
             // 
-            // ListarMovimentacao
+            // label1
             // 
-            ListarMovimentacao.Location = new Point(219, 209);
-            ListarMovimentacao.Name = "ListarMovimentacao";
-            ListarMovimentacao.Size = new Size(158, 29);
-            ListarMovimentacao.TabIndex = 5;
-            ListarMovimentacao.Text = "Listar Movimentaçoes";
-            ListarMovimentacao.UseVisualStyleBackColor = true;
-            ListarMovimentacao.Click += ListarMovimentacao_Click;
+            label1.AutoSize = true;
+            label1.Location = new Point(12, 14);
+            label1.Name = "label1";
+            label1.Size = new Size(81, 15);
+            label1.TabIndex = 5;
+            label1.Text = "Competência:";
+            // 
+            // competenciaTextBox
+            // 
+            competenciaTextBox.Location = new Point(99, 11);
+            competenciaTextBox.Name = "competenciaTextBox";
+            competenciaTextBox.Size = new Size(69, 23);
+            competenciaTextBox.TabIndex = 6;
+            competenciaTextBox.TextChanged += competenciaTextBox_TextChanged;
+            competenciaTextBox.Leave += OnCompetenciaChange;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(524, 250);
-            Controls.Add(ListarMovimentacao);
-            Controls.Add(ListarContas);
+            ClientSize = new Size(524, 283);
+            Controls.Add(competenciaTextBox);
+            Controls.Add(label1);
+            Controls.Add(GerenciarSaldos);
             Controls.Add(logBox);
             Controls.Add(OpenFileButton);
             Controls.Add(ProcessButton);
@@ -121,7 +131,8 @@
         private Button ProcessButton;
         private Button OpenFileButton;
         private TextBox logBox;
-        private Button ListarContas;
-        private Button ListarMovimentacao;
+        private Button GerenciarSaldos;
+        private Label label1;
+        private TextBox competenciaTextBox;
     }
 }

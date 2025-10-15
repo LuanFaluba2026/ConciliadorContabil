@@ -21,5 +21,15 @@ namespace Conciliacao_Plamev
         public string? historico { get; set; }
         public double debito { get; set; }
         public double credito { get; set; }
+        public string? notaRef { get; set; }
+    }
+
+    public class MovimentosAbertos
+    {
+        public string? codigoForn { get; set; }
+        public string? dataMov { get; set; }
+        public string? notaRef { get; set; }
+        public string? historico { get; set; }
+        public double credito { get; set; }
     }
 }

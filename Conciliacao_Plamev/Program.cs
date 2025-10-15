@@ -4,40 +4,12 @@ using System.Data.SQLite;
 
 namespace Conciliacao_Plamev
 {
-    /*public class BancoDeDados
-    {
-        private static string path = "Dados.db";
-        private static string conexao = $"Data Source={path};Version=3;";
-        public static SQLiteConnection Connect()
-        {
-            if (!File.Exists(path))
-            {
-                SQLiteConnection.CreateFile(path);
-                CriarTabelas();
-            }
-            return new SQLiteConnection(conexao);
-        }
-
-        private static void CriarTabelas()
-        {
-            using (var con = new SQLiteConnection(conexao))
-            {
-                con.Open();
-                string sql =
-                    @"CREATE TABLE IF NOT EXISTS contas (
-                    codigo TEXT PRIMARY KEY,
-                    conta TEXT NOT NULL,
-                    notaRef TEXT,
-                    historico)"
-            }
-        }
-    }*/
-
     internal static class Program
     {
 
         public static List<CodigoContas> contasCadastradas = new List<CodigoContas>();
         public static List<Movimentacao> movimentacoes = new List<Movimentacao>();
+        public static List<MovimentosAbertos> saldosEmAberto = new List<MovimentosAbertos>();
         public static void CadastrarConta(string codigo, string contaAnalitica, string nomeFornecedor, double saldo)
         {
             var conta = new CodigoContas
@@ -50,7 +22,7 @@ namespace Conciliacao_Plamev
             contasCadastradas.Add(conta);
         }
 
-        public static void cadastrarMovimentacao(string codigoForn, string dataLancamento, string historico, double debito, double credito)
+        public static void CadastrarMovimentacao(string codigoForn, string dataLancamento, string historico, double debito, double credito, string notaRef)
         {
             var movimentacao = new Movimentacao
             {
@@ -58,9 +30,23 @@ namespace Conciliacao_Plamev
                 dataLancamento = dataLancamento,
                 historico = historico,
                 debito = debito,
-                credito = credito
+                credito = credito,
+                notaRef = notaRef
             };
             movimentacoes.Add(movimentacao);
+        }
+
+        public static void CadastrarSaldo(string codigoForn, string dataMov, string notaRef, string historico, double credito)
+        {
+            var saldoAb = new MovimentosAbertos
+            {
+                codigoForn = codigoForn,
+                dataMov = dataMov,
+                notaRef = notaRef,
+                historico = historico,
+                credito = credito
+            };
+            saldosEmAberto.Add(saldoAb);
         }
 
         [STAThread]

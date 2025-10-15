@@ -24,6 +24,7 @@ namespace Conciliacao_Plamev
             {
                 conv.Conversao();
                 sheetL.CreateSheet();
+                Program.movimentacoes.Clear();
 
 
                 Invoke(new Action(() =>
@@ -31,7 +32,6 @@ namespace Conciliacao_Plamev
                     foreach (var contas in Program.contasCadastradas)
                     {
                         string log = $"{contas.codigo} / {contas.contaAnalitica} / {contas.nomeFornecedor} / {contas.saldo}";
-                        Debug.WriteLine(log);
                         logBox.AppendText($"{log}\r\n");
                     }
                 }));
@@ -53,7 +53,7 @@ namespace Conciliacao_Plamev
         {
             foreach (var contas in Program.movimentacoes)
             {
-                Debug.WriteLine($"{contas.codigoForn} / {contas.dataLancamento} / {contas.historico} / {contas.debito} / {contas.credito}");
+                Debug.WriteLine($"{contas.codigoForn} / {contas.dataLancamento} / {contas.historico} / {contas.debito} / {contas.credito} / {contas.notaRef}");
             }
         }
     }

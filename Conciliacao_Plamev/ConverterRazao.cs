@@ -13,7 +13,7 @@ namespace Conciliacao_Plamev
     internal class ConverterRazao
     {
         Form1 form = new();
-        string razaoPath = @"C:\Users\luan\Downloads\razao atualizado.xlsx";
+        string razaoPath = @"C:\Users\secun\Downloads\emcasa\teste.xlsx";
         public void Conversao()
         {
             Dictionary<string, List<(string, string, string, string, string, string)>> linhas = new();
@@ -59,16 +59,43 @@ namespace Conciliacao_Plamev
                             ("val", dataLançamento, historicoLancamento, valorCredito, valorDebito, "0")
                         };
 
-                        Program.cadastrarMovimentacao(
+                        Program.CadastrarMovimentacao(
                             codigoFornecedor,
                             dataLançamento,
                             historicoLancamento,
                             double.Parse(valorDebito) * (-1),
-                            double.Parse(valorCredito)
-                            );
+                            double.Parse(valorCredito),
+                            BuscarNfRef(historicoLancamento)
+                        );
+
                     }
                 }
             }
+        }
+
+        private string BuscarNfRef(string historico)
+        {
+            string[] words = historico.Split(' ');
+            string[] possiveisCombinacoes =
+            {
+                "NFS",
+                "NF"
+            };
+            foreach(var c in possiveisCombinacoes)
+            {
+                int numeroNota = Array.IndexOf(words, c);
+                if(numeroNota >= 0)
+                {
+                    string word = words[numeroNota + 1];
+                    string n = word.StartsWith("25") ? word.Substring(2) : word;
+                    n = n.StartsWith("2025/") ? n.Substring(5) : n;
+                    n = n.StartsWith("2025") ? n.Substring(4) : n;
+                    n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
+                    n = n.TrimStart('0');
+                    return n;
+                }
+            }
+            return "";
         }
     }
 }

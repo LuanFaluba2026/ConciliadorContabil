@@ -1,4 +1,5 @@
 using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System.Diagnostics;
 using System.Windows.Forms;
 
@@ -12,7 +13,23 @@ namespace Conciliacao_Plamev
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
 
             if (!Directory.Exists(@"c:\Data"))
+            {
                 Directory.CreateDirectory(@"c:\Data");
+                BancoDeDados.CriarBancoSQlite();
+            }
+        }
+        public static string razaoPath;
+        private void OpenFileButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new();
+            ofd.Title = "Selecione uma planilha";
+            ofd.Filter = "Planilhas Excel (*.xls;*.xlsx)|*.xls;*xlsx|Todos os Arquivos (*.*)|*.*";
+            ofd.Multiselect = false;
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                razaoPath = ofd.FileName;
+                pathTextBox.Text = razaoPath;
+            }
         }
         private async void ProcessButton_Click(object sender, EventArgs e)
         {
@@ -21,38 +38,44 @@ namespace Conciliacao_Plamev
             SheetLayout sheetL = new();
             Form1 form = new();
 
-            /*BancoDeDados.CriarBancoSQlite();
-            BancoDeDados.CriarTabelaSQLite();*/
-
-            if(!String.IsNullOrEmpty(competenciaTextBox.Text))
+            BancoDeDados.CriarTabelaSQLite();
+            try
             {
-                sw.Start();
-                logBox.AppendText("\r\nIniciando Processamento...\r\n");
-                await Task.Run(() =>
+                if (!String.IsNullOrEmpty(competenciaTextBox.Text) && !String.IsNullOrEmpty(razaoPath))
                 {
-                    conv.Conversao();
-                    sheetL.CreateSheet();
-                    Program.movimentacoes.Clear();
-
-
-                    Invoke(new Action(() =>
+                    sw.Start();
+                    logBox.AppendText("\r\nIniciando Processamento...\r\n");
+                    await Task.Run(() =>
                     {
-                        foreach (var contas in Program.contasCadastradas)
-                        {
-                            string log = $"{contas.codigo} / {contas.contaAnalitica} / {contas.nomeFornecedor} / {contas.saldo}";
-                            logBox.AppendText($"{log}\r\n");
-                        }
-                    }));
+                        conv.Conversao();
+                        sheetL.CreateSheet();
+                        Program.movimentacoes.Clear();
 
-                });
-                sw.Stop();
-                logBox.AppendText($"\r\n Processamento Concluído ! ({sw.Elapsed.ToString(@"hh\:mm\:ss")})");
+
+                        Invoke(new Action(() =>
+                        {
+                            foreach (var contas in Program.contasCadastradas)
+                            {
+                                string log = $"{contas.codigo} / {contas.contaAnalitica} / {contas.nomeFornecedor} / {contas.saldo}";
+                                logBox.AppendText($"{log}\r\n");
+                            }
+                        }));
+
+                    });
+                    sw.Stop();
+                    logBox.AppendText($"\r\n Processamento Concluído ! ({sw.Elapsed.ToString(@"hh\:mm\:ss")})");
+                }
+                else
+                {
+                    throw new Exception("Informações Inválidas");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Insira a competência", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"{ex.Message} || {ex.StackTrace}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-           
+
+
         }
 
         public static DateTime competencia = new();
@@ -86,11 +109,15 @@ namespace Conciliacao_Plamev
 
             competenciaTextBox.TextChanged += competenciaTextBox_TextChanged;
         }
-        private void GerenciarSaldos_Click(object sender, EventArgs e)
+        private void gerenciamentoSaldosAnterioresToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Form2 newWindow = new Form2();
             newWindow.ShowDialog();
         }
 
+        private void importarSaldosAnterioresToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ImpSaldosAnteriores.ImportarSaldo(@"C:\Users\luan\Downloads\MOVIMENTACOES EM ABERTO.csv");
+        }
     }
 }

@@ -10,7 +10,7 @@ namespace Conciliacao_Plamev
 {
     public class BancoDeDados
     {
-        private static SQLiteConnection sqliteConnection;
+        private static SQLiteConnection? sqliteConnection;
 
         private static SQLiteConnection DbConnection()
         {
@@ -34,7 +34,9 @@ namespace Conciliacao_Plamev
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS SaldosEmAberto( codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, notaRef TEXT, historico TEXT, credito REAL, PRIMARY KEY(codigoForn);";
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS SaldosEmAberto (codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, notaRef TEXT, historico TEXT, credito REAL, PRIMARY KEY (codigoForn));";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS CadastroContas (codigo TEXT NOT NULL, contaAnalitica TEXT NOT NULL, nomeFornecedor TEXT NOT NULL, saldo REAL, PRIMARY KEY(codigo));";
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -63,6 +65,26 @@ namespace Conciliacao_Plamev
                 }
             }
             catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public static void AddConta(CodigoContas contas)
+        {
+            try
+            {
+                using (var cmd = DbConnection().CreateCommand())
+                {
+                    cmd.CommandText = "INSERT OR IGNORE INTO CadastroContas(codigo, contaAnalitica, nomeFornecedor, saldo) values (@codigo, @contaAnalitica, @nomeFornecedor, @saldo)";
+                    cmd.Parameters.AddWithValue("@codigo", contas.codigo);
+                    cmd.Parameters.AddWithValue("@contaAnalitica", contas.contaAnalitica);
+                    cmd.Parameters.AddWithValue("@nomeFornecedor", contas.nomeFornecedor);
+                    cmd.Parameters.AddWithValue("@saldo", contas.saldo);
+                    cmd.ExecuteNonQuery();
+                }
+
+            }catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -98,6 +120,86 @@ namespace Conciliacao_Plamev
                 throw new Exception(ex.Message);
             }
         }
+        public static List<CodigoContas> GetContas()
+        {
+            List<CodigoContas> lista = new();
+            try
+            {
+                using (var cmd = DbConnection().CreateCommand())
+                {
+                    cmd.CommandText = "SELECT * FROM CadastroContas";
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            lista.Add(new CodigoContas
+                            {
+                                codigo = reader["codigo"].ToString(),
+                                contaAnalitica = reader["contaAnalitica"].ToString(),
+                                nomeFornecedor = reader["nomeFornecedor"].ToString(),
+                                saldo = Convert.ToDouble(reader["saldo"])
+                            });
 
+                        }
+                        return lista;
+                    }
+                }
+                ;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public static void UpdateSaldo(string conta, double saldo)
+        {
+            try
+            {
+                using (var cmd = new SQLiteCommand(DbConnection()))
+                {
+                    cmd.CommandText = "UPDATE CadastroContas SET saldo=@Saldo WHERE codigo=@Codigo";
+                    cmd.Parameters.AddWithValue("@Codigo", conta);
+                    cmd.Parameters.AddWithValue("@Saldo", saldo);
+                    cmd.ExecuteNonQuery();
+                }
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public static void SomaSaldo(string conta, double saldo)
+        {
+            try
+            {
+                using (var cmd = new SQLiteCommand(DbConnection()))
+                {
+                    cmd.CommandText = "UPDATE CadastroContas SET saldo = saldo + @Saldo WHERE codigo=@Codigo";
+                    cmd.Parameters.AddWithValue("@Codigo", conta);
+                    cmd.Parameters.AddWithValue("@Saldo", saldo);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public static void DeleteSaldo(MovimentosAbertos saldo)
+        {
+            try
+            {
+                using (var cmd = new SQLiteCommand(DbConnection()))
+                {
+                    cmd.CommandText = "DELETE FROM SaldosEmAberto WHERE historico=@Historico AND notaRef=@NotaRef AND credito=@Credito";
+                    cmd.Parameters.AddWithValue("@Historico", saldo.historico);
+                    cmd.Parameters.AddWithValue("@NotaRef", saldo.notaRef);
+                    cmd.Parameters.AddWithValue("@Credito", saldo.credito);
+                    cmd.ExecuteNonQuery();
+                }
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace Conciliacao_Plamev
     internal class ConverterRazao
     {
         Form1 form = new();
-        string razaoPath = @"C:\Users\luan\Downloads\mes otcho.xlsx";
+        string razaoPath = Form1.razaoPath;
         public void Conversao()
         {
             Dictionary<string, List<(string, string, string, string, string, string)>> linhas = new();
@@ -23,7 +23,7 @@ namespace Conciliacao_Plamev
             {
                 var ws = wb.Worksheet(1);
 
-                for(int i = 2; i <= 1000 /*ws.RowsUsed().Count()*/; i++) 
+                for(int i = 2; i <= ws.RowsUsed().Count(); i++) 
                 {
                     
                     var row = ws.Row(i);
@@ -51,6 +51,14 @@ namespace Conciliacao_Plamev
                             nomeFornecedor, 
                             double.Parse(saldoAnterior) * (-1)
                             );
+
+                        BancoDeDados.AddConta(new CodigoContas()
+                        {
+                            codigo = codigoFornecedor,
+                            contaAnalitica = $"{classificacaoFornecedor[0]}.{classificacaoFornecedor[1]}.{classificacaoFornecedor[2]}.{classificacaoFornecedor.Substring(3, 2)}.{classificacaoFornecedor.Substring(5, 4)}",
+                            nomeFornecedor = nomeFornecedor,
+                            saldo = 0
+                        });
                     }
                     else if(linhas.ContainsKey(nomeFornecedor))
                     {

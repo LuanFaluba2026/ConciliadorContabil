@@ -51,7 +51,7 @@
             // fixo1
             // 
             fixo1.AutoSize = true;
-            fixo1.Location = new Point(12, 12);
+            fixo1.Location = new Point(12, 26);
             fixo1.Name = "fixo1";
             fixo1.Size = new Size(52, 15);
             fixo1.TabIndex = 0;
@@ -59,16 +59,17 @@
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(70, 9);
+            textBox1.Location = new Point(70, 23);
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(100, 23);
             textBox1.TabIndex = 1;
+            textBox1.TextChanged += textBox1_TextChanged_1;
             textBox1.Leave += textBox1_TextChanged;
             // 
             // consultaFornecedor
             // 
             consultaFornecedor.AutoSize = true;
-            consultaFornecedor.Location = new Point(192, 12);
+            consultaFornecedor.Location = new Point(192, 26);
             consultaFornecedor.Name = "consultaFornecedor";
             consultaFornecedor.Size = new Size(70, 15);
             consultaFornecedor.TabIndex = 2;
@@ -170,7 +171,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(871, 347);
+            ClientSize = new Size(871, 346);
             Controls.Add(CancelarButton);
             Controls.Add(EditarButton);
             Controls.Add(SalvarButton);
@@ -180,7 +181,7 @@
             Controls.Add(textBox1);
             Controls.Add(fixo1);
             Name = "Form2";
-            Text = "Form2";
+            Text = "Saldos Anteriores";
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ((System.ComponentModel.ISupportInitialize)movimentosAbertosBindingSource).EndInit();
             ((System.ComponentModel.ISupportInitialize)bindingSource1).EndInit();

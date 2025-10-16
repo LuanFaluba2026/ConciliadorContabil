@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,7 @@ namespace Conciliacao_Plamev
     public class SheetLayout
     {
 
-        string path = @"C:\Users\luan\Downloads\Fornecedores.xlsx";
+        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fornecedores.xlsx");
         Form1 form = new();
         public void CreateSheet()
         {
@@ -39,40 +38,81 @@ namespace Conciliacao_Plamev
             ws.Column("G").Width = 15;
             ws.Column("H").Width = 24.71;
 
-
-
-
-            List<MovimentosAbertos> saldos = BancoDeDados.GetSaldos().Where(s => Form1.competencia > DateTime.Parse(s.dataMov)).ToList(); ;
+            List<MovimentosAbertos> saldos = BancoDeDados.GetSaldos().Where(s => Form1.competencia > DateTime.Parse(s.dataMov)).ToList();
             foreach (var contas in Program.contasCadastradas)
             {
-                ws.Cell(1 + linhasUsadas, "A").Value = "Conta:";
+                List<Movimentacao> mov = Program.movimentacoes.Where(x => x.codigoForn == contas.codigo).ToList();
+                List<MovimentosAbertos> saldosPorConta = saldos.Where(x => x.codigoForn == contas.codigo).ToList();
 
+                var remover = new HashSet<Movimentacao>();
+                var removerSaldos = new HashSet<MovimentosAbertos>();
 
-                ws.Cell(3 + linhasUsadas, "C").Value = "SALDO ANTERIOR";
-                ws.Cell(1 + linhasUsadas, "C").Value = contas.codigo;
-                ws.Cell(1 + linhasUsadas, "B").Value = contas.contaAnalitica;
-                ws.Cell(1 + linhasUsadas, "D").Value = contas.nomeFornecedor;
-                ws.Cell(3 + linhasUsadas, "F").Value = contas.saldo;
+                foreach (var grupo in mov.GroupBy(x => x.notaRef))
+                {
+                    var creditos = grupo.Where(x => x.credito > 0).ToList();
+                    var debitos = grupo.Where(x => x.debito < 0).ToList();
 
-                //soma
-                ws.Cell(alturaFixa - 1 + linhasUsadas, "H").FormulaA1 = $"=SUM(E{linhasUsadas + 3}:F{linhasUsadas + alturaFixa - 1})";
-                //personalização
-                ws.Cell(1 + linhasUsadas, "C").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                ws.Cell(1 + linhasUsadas, "C").Style.Font.Bold = true;
-                ws.Cell(1 + linhasUsadas, "D").Style.Font.Bold = true;
-                ws.Row(1 + linhasUsadas).Style.Border.TopBorder = XLBorderStyleValues.Thin;
-                ws.Row(linhasUsadas).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                ws.Cell(alturaFixa - 1 + linhasUsadas, "H").Style.Fill.BackgroundColor = XLColor.Yellow;
-                ws.Cell(alturaFixa - 1 + linhasUsadas, "H").Style.Font.Bold = true;
+                    foreach (var c in creditos)
+                    {
+                        var d = debitos.FirstOrDefault(x => x.notaRef == c.notaRef && Math.Abs(x.debito + c.credito) < 0.01); ;
+                        if (d != null)
+                        {
+                            remover.Add(c);
+                            remover.Add(d);
+                            debitos.Remove(d);
+                        }
+                    }
+                    foreach (var grupoSaldos in saldosPorConta.GroupBy(x => x.notaRef))
+                    {
+                        var creditosS = grupoSaldos.Where(x => x.credito > 0).ToList();
+                        foreach(var cred in creditosS)
+                        {
+                            var deb = debitos.FirstOrDefault(x => x.notaRef == cred.notaRef && Math.Abs(x.debito + cred.credito) < 0.01);
+                            if (deb != null)
+                            {
+                                removerSaldos.Add(cred);
+                                remover.Add(deb);
+                                debitos.Remove(deb);
+                            }
+                        }
+                    }
+                }
+                foreach(var s in removerSaldos)
+                {
+                    Debug.WriteLine($"{s.notaRef} || {s.historico}");
+                    BancoDeDados.DeleteSaldo(s);
+                }
+                saldosPorConta.RemoveAll(x => removerSaldos.Contains(x));
+                mov.RemoveAll(x => remover.Contains(x));
 
-                linhasUsadas += alturaFixa;
+                if(mov.Count != 0 || saldosPorConta.Count != 0)
+                {
+                    ws.Cell(1 + linhasUsadas, "A").Value = "Conta:";
+                    ws.Cell(3 + linhasUsadas, "C").Value = "SALDO ANTERIOR";
+                    ws.Cell(1 + linhasUsadas, "C").Value = contas.codigo;
+                    ws.Cell(1 + linhasUsadas, "B").Value = contas.contaAnalitica;
+                    ws.Cell(1 + linhasUsadas, "D").Value = contas.nomeFornecedor;
 
-                var saldosPorConta = saldos.Where(x => x.codigoForn == contas.codigo);
+                    //soma
+                    ws.Cell(alturaFixa - 1 + linhasUsadas, "H").FormulaA1 = $"=SUM(E{linhasUsadas + 3}:F{linhasUsadas + alturaFixa - 1})";
+                    //personalização
+                    ws.Cell(1 + linhasUsadas, "C").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    ws.Cell(1 + linhasUsadas, "C").Style.Font.Bold = true;
+                    ws.Cell(1 + linhasUsadas, "D").Style.Font.Bold = true;
+                    ws.Row(1 + linhasUsadas).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+                    ws.Row(linhasUsadas).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                    ws.Cell(alturaFixa - 1 + linhasUsadas, "H").Style.Fill.BackgroundColor = XLColor.Yellow;
+                    ws.Cell(alturaFixa - 1 + linhasUsadas, "H").Style.Font.Bold = true;
+                    BancoDeDados.UpdateSaldo(contas.codigo, 0);
+                    linhasUsadas += alturaFixa;
+                }
+
 
                 foreach(var s in saldosPorConta)
                 {
                     var row = ws.Row(3 + linhasUsadas - alturaFixa).InsertRowsAbove(1);
                     linhasUsadas++;
+                    ws.Cell(3 + linhasUsadas - alturaFixa, "F").FormulaA1 = $"=SUM(f{2 + linhasUsadas - alturaFixa}:F{1 + linhasUsadas - alturaFixa})";
                     foreach (var cells in row)
                     {
                         cells.Cell("A").Value = s.dataMov;
@@ -82,53 +122,23 @@ namespace Conciliacao_Plamev
                         cells.Cell("C").Style.Font.FontColor = XLColor.Red;
                         cells.Cell("F").Style.Font.FontColor = XLColor.Red;
                     }
+                    BancoDeDados.SomaSaldo(contas.codigo, s.credito);
                 }
 
-
-
-                List<Movimentacao> mov = Program.movimentacoes.Where(x => x.codigoForn == contas.codigo).ToList();
-
-                var remover = new HashSet<Movimentacao>();
-
-                foreach (var grupo in mov.GroupBy(x => x.notaRef))
-                {
-                    var creditos = grupo.Where(x => x.credito > 0).ToList();
-                    var debitos = grupo.Where(x => x.debito < 0).ToList();
-
-                    foreach (var c in creditos)
-                    {
-                        var d = debitos.FirstOrDefault(x => Math.Abs(x.debito + c.credito) < 0.01);
-                        if (d != null)
-                        {
-                            remover.Add(c);
-                            remover.Add(d);
-                            debitos.Remove(d);
-                        }
-                    }
-                }
-
-                mov.RemoveAll(x => remover.Contains(x));
-
-                //Program.movimentacoes.RemoveAll(x => numRepetido.Contains(x.notaRef) && (valDebtRepetido.Contains(x.debito) || valDebtRepetido.Contains(x.credito)));
-
-                /*mov.RemoveAll(x => x.debito == contas.saldo); //ATENÇÃO ALTERAR REGRA
-                Program.movimentacoes.RemoveAll(x => x.debito == contas.saldo); // ATENÇÃO ALTERAR REGRA*/
-
+                double acumulado = 0;
                 foreach (var movimento in mov)
                 {
                     var row = ws.Row(linhasUsadas - alturaFixa + 4).InsertRowsBelow(1);
                     linhasUsadas++;
 
-                    /*if (!dt.Select($"historico = '{movimento.historico}'").Any())
-                    {
-                        */BancoDeDados.AddSaldo(new MovimentosAbertos() {
-                            codigoForn =  movimento.codigoForn ?? "",
+                        BancoDeDados.AddSaldo(new MovimentosAbertos()
+                        {
+                            codigoForn = movimento.codigoForn ?? "",
                             dataMov = movimento.dataLancamento ?? "",
                             notaRef = movimento.notaRef ?? "",
                             historico = movimento.historico ?? "",
                             credito = movimento.credito
-                        });/*
-                    }*/
+                        });
 
                     foreach (var cells in row)
                     {
@@ -136,8 +146,11 @@ namespace Conciliacao_Plamev
                         cells.Cell("C").Value = movimento.historico;
                         cells.Cell("E").Value = movimento.debito;
                         cells.Cell("F").Value = movimento.credito;
+                        acumulado += movimento.credito;
                     }
+                BancoDeDados.SomaSaldo(contas.codigo, acumulado);
                 }
+
             }
 
 

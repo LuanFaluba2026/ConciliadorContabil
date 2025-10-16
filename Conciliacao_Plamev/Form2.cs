@@ -18,49 +18,18 @@ namespace Conciliacao_Plamev
             InitializeComponent();
         }
 
-        BindingList<MovimentosAbertos> listaOriginal;
-        BindingList<MovimentosAbertos> listaAtual;
         private void textBox1_TextChanged(object sender, EventArgs e)
-        {/*
-            string codigo = textBox1.Text;
-            if (!String.IsNullOrEmpty(codigo))
+        {
+            var contasCadastradas = Program.contasCadastradas;
+            if (!String.IsNullOrEmpty(textBox1.Text) && contasCadastradas.Any(x => x.codigo == textBox1.Text))
             {
-                var contaSelecionada = Program.contasCadastradas.Where(x => x.codigo == codigo).ToList();
 
-                if (contaSelecionada.Count == 0)
-                {
-                    MessageBox.Show("Código do Fornecedor Inválido", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    textBox1.Text = "";
-                }
-                else
-                {
-                    //var saldosPorConta = Program.saldosEmAberto.Where(x => x.codigoForn == contaSelecionada[0].codigo);
-
-                    listaOriginal = new BindingList<MovimentosAbertos>(
-                        saldosPorConta.Select(m => new MovimentosAbertos
-                        {
-                            dataMov = m.dataMov,
-                            notaRef = m.notaRef,
-                            historico = m.historico,
-                            credito = m.credito
-                        }).ToList()
-                     );
-
-                    listaAtual = new BindingList<MovimentosAbertos>(
-                        saldosPorConta.Select(m => new MovimentosAbertos
-                        {
-                            dataMov = m.dataMov,
-                            notaRef = m.notaRef,
-                            historico = m.historico,
-                            credito = m.credito
-                        }).ToList()
-                    );
-
-                    dataGridView1.DataSource = listaAtual;
-                }
-            }*/
+            }
+            else
+            {
+                MessageBox.Show("Código Inválido.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
-
         private void EditarButton_Click(object sender, EventArgs e)
         {
             if (!String.IsNullOrEmpty(textBox1.Text))
@@ -93,18 +62,6 @@ namespace Conciliacao_Plamev
                 {
                     column.ReadOnly = true;
                 }
-
-                listaAtual = new BindingList<MovimentosAbertos>(
-                listaOriginal.Select(m => new MovimentosAbertos
-                {
-                    dataMov = m.dataMov,
-                    notaRef = m.notaRef,
-                    historico = m.historico,
-                    credito = m.credito
-                }).ToList()
-                );
-
-                dataGridView1.DataSource = listaAtual;
             }
         }
 
@@ -119,25 +76,11 @@ namespace Conciliacao_Plamev
             {
                 column.ReadOnly = true;
             }
-            listaAtual = new BindingList<MovimentosAbertos>(
-                listaOriginal.Select(m => new MovimentosAbertos
-                {
-                    dataMov = m.dataMov,
-                    notaRef = m.notaRef,
-                    historico = m.historico,
-                    credito = m.credito
-                }).ToList()
-                );
-            foreach (var item in listaAtual)
-            {
-                    
-                    
-                    /*codigoForn = item.codigoForn,
-                    dataMov = item.dataMov,
-                    notaRef = item.notaRef,
-                    historico = item.historico,
-                    credito = item.credito});*/
-            }
+        }
+
+        private void textBox1_TextChanged_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

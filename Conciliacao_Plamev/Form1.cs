@@ -33,6 +33,9 @@ namespace Conciliacao_Plamev
         }
         private async void ProcessButton_Click(object sender, EventArgs e)
         {
+            this.Cursor = Cursors.AppStarting;
+            ProcessButton.Enabled = false;
+
             Stopwatch sw = new();
             ConverterRazao conv = new();
             SheetLayout sheetL = new();
@@ -75,7 +78,8 @@ namespace Conciliacao_Plamev
                 MessageBox.Show($"{ex.Message} || {ex.StackTrace}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-
+            this.Cursor = Cursors.Default;
+            ProcessButton.Enabled = true;
         }
 
         public static DateTime competencia = new();

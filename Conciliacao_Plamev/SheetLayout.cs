@@ -79,7 +79,7 @@ namespace Conciliacao_Plamev
                 }
                 foreach(var s in removerSaldos)
                 {
-                    Debug.WriteLine($"{s.notaRef} || {s.historico} || {mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento}");
+                    //Debug.WriteLine($"{s.notaRef} || {s.historico} || {mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento}");
                     BancoDeDados.EncerrarSaldo(s.codigoForn, s.historico, mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento);
                 }
                 mov.RemoveAll(x => remover.Contains(x));

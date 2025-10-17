@@ -35,7 +35,7 @@ namespace Conciliacao_Plamev
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS SaldosEmAberto (codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, notaRef TEXT, historico TEXT, credito REAL, dataEncerramento TEXT, PRIMARY KEY (codigoForn));";
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS SaldosEmAberto (codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, notaRef TEXT, historico TEXT, credito REAL, dataEncerramento TEXT, PRIMARY KEY (codigoForn, historico));";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE IF NOT EXISTS CadastroContas (codigo TEXT NOT NULL, contaAnalitica TEXT NOT NULL, nomeFornecedor TEXT NOT NULL, saldo REAL, PRIMARY KEY(codigo));";
                     cmd.ExecuteNonQuery();

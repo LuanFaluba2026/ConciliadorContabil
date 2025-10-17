@@ -121,7 +121,7 @@ namespace Conciliacao_Plamev
 
         private void importarSaldosAnterioresToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ImpSaldosAnteriores.ImportarSaldo(@"C:\Users\secun\Downloads\MOVIMENTACOES EM ABERTO.csv");
+            ImpSaldosAnteriores.ImportarSaldo(@"C:\Users\luan\Downloads\MOVIMENTACOES EM ABERTO.csv");
         }
     }
 }

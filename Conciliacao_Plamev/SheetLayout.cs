@@ -79,7 +79,12 @@ namespace Conciliacao_Plamev
                 }
                 foreach(var s in removerSaldos)
                 {
-                    //Debug.WriteLine($"{s.notaRef} || {s.historico} || {mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento}");
+                    Debug.WriteLine($"{s.notaRef} || {s.historico} || {mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento}");
+                    BancoDeDados.EncerrarSaldo(s.codigoForn, s.historico, mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento);
+                }
+                foreach (var s in remover)
+                {
+                    Debug.WriteLine($"{s.notaRef} || {s.historico} || {mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento}");
                     BancoDeDados.EncerrarSaldo(s.codigoForn, s.historico, mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento);
                 }
                 mov.RemoveAll(x => remover.Contains(x));
@@ -109,7 +114,7 @@ namespace Conciliacao_Plamev
 
                 foreach(var s in saldosPorConta)
                 {
-                    Debug.WriteLine(s.dataEncerramento);
+                    //Debug.WriteLine(s.dataEncerramento);
                     if(String.IsNullOrEmpty(s.dataEncerramento))
                     {
                         var row = ws.Row(3 + linhasUsadas - alturaFixa).InsertRowsAbove(1);
@@ -129,7 +134,8 @@ namespace Conciliacao_Plamev
                     else
                     {
                         DateTime encerramento = DateTime.Parse(s.dataEncerramento);
-                        if (encerramento < Form1.competencia)
+                        Debug.WriteLine(Form1.competencia.AddDays(-1));
+                        if (encerramento < Form1.competencia.AddDays(-1))
                         {
                             var row = ws.Row(3 + linhasUsadas - alturaFixa).InsertRowsAbove(1);
                             linhasUsadas++;

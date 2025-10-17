@@ -18,12 +18,13 @@ namespace Conciliacao_Plamev
         {
             try
             {
+                Program.movimentacoes.Clear();
                 Dictionary<string, List<(string, string, string, string, string, string)>> linhas = new();
                 using (var wb = new XLWorkbook(razaoPath))
                 {
                     var ws = wb.Worksheet(1);
 
-                    for (int i = 2; i <= ws.RowsUsed().Count(); i++)
+                    for (int i = 2; i <= 1000 /*ws.RowsUsed().Count()*/; i++)
                     {
 
                         var row = ws.Row(i);
@@ -107,6 +108,7 @@ namespace Conciliacao_Plamev
                     n = n.StartsWith("2025") ? n.Substring(4) : n;
                     n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
                     n = n.TrimStart('0');
+                    Debug.WriteLine($"{n} || {historico}");
                     return n;
                 }
             }

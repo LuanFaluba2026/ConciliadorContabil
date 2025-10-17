@@ -23,7 +23,7 @@ namespace Conciliacao_Plamev
             var ws = wb.Worksheets.Add("Fornecedores");
 
             //layout fixo;
-            const int alturaFixa = 6;
+            const int alturaFixa = 5;
             int linhasUsadas = 1;
 
             ws.Cell("A1").Value = "Data";
@@ -92,21 +92,18 @@ namespace Conciliacao_Plamev
                 if(mov.Count != 0 || saldosPorConta.Count != 0)
                 {
                     ws.Cell(1 + linhasUsadas, "A").Value = "Conta:";
-                    ws.Cell(3 + linhasUsadas, "C").Value = "SALDO ANTERIOR";
                     ws.Cell(1 + linhasUsadas, "C").Value = contas.codigo;
                     ws.Cell(1 + linhasUsadas, "B").Value = contas.contaAnalitica;
                     ws.Cell(1 + linhasUsadas, "D").Value = contas.nomeFornecedor;
 
-                    //soma
-                    ws.Cell(alturaFixa - 1 + linhasUsadas, "H").FormulaA1 = $"=SUM(E{linhasUsadas + 3}:F{linhasUsadas + alturaFixa - 1})";
                     //personalização
                     ws.Cell(1 + linhasUsadas, "C").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     ws.Cell(1 + linhasUsadas, "C").Style.Font.Bold = true;
                     ws.Cell(1 + linhasUsadas, "D").Style.Font.Bold = true;
                     ws.Row(1 + linhasUsadas).Style.Border.TopBorder = XLBorderStyleValues.Thin;
                     ws.Row(linhasUsadas).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                    ws.Cell(alturaFixa - 1 + linhasUsadas, "H").Style.Fill.BackgroundColor = XLColor.Yellow;
-                    ws.Cell(alturaFixa - 1 + linhasUsadas, "H").Style.Font.Bold = true;
+                    ws.Cell(alturaFixa - 1 + linhasUsadas, "G").Style.Fill.BackgroundColor = XLColor.Yellow; // SOMA SALDO
+                    ws.Cell(alturaFixa - 1 + linhasUsadas, "G").Style.Font.Bold = true; // SOMA SALDO
                     BancoDeDados.UpdateSaldo(contas.codigo, 0);
                     linhasUsadas += alturaFixa;
                 }
@@ -119,7 +116,6 @@ namespace Conciliacao_Plamev
                     {
                         var row = ws.Row(3 + linhasUsadas - alturaFixa).InsertRowsAbove(1);
                         linhasUsadas++;
-                        ws.Cell(3 + linhasUsadas - alturaFixa, "F").FormulaA1 = $"=SUM(f{2 + linhasUsadas - alturaFixa}:F{1 + linhasUsadas - alturaFixa})";
                         foreach (var cells in row)
                         {
                             cells.Cell("A").Value = s.dataMov;
@@ -139,7 +135,6 @@ namespace Conciliacao_Plamev
                         {
                             var row = ws.Row(3 + linhasUsadas - alturaFixa).InsertRowsAbove(1);
                             linhasUsadas++;
-                            ws.Cell(3 + linhasUsadas - alturaFixa, "F").FormulaA1 = $"=SUM(f{2 + linhasUsadas - alturaFixa}:F{1 + linhasUsadas - alturaFixa})";
                             foreach (var cells in row)
                             {
                                 cells.Cell("A").Value = s.dataMov;
@@ -153,6 +148,8 @@ namespace Conciliacao_Plamev
                         }
                     }
                 }
+                //soma saldo
+                ws.Cell(alturaFixa - 1 + linhasUsadas, "G").FormulaA1 = $"=SUM(E{linhasUsadas + 2}:F{linhasUsadas + alturaFixa})";
 
                 double acumulado = 0;
                 foreach (var movimento in mov)

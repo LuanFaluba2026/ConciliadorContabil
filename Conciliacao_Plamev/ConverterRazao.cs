@@ -12,21 +12,19 @@ namespace Conciliacao_Plamev
 {
     internal class ConverterRazao
     {
-        Form1 form = new();
         string razaoPath = Form1.razaoPath;
+        //Função usada para pegar as informações no razão do Domínio e realizar o Parsing
         public void Conversao()
         {
             try
             {
-                Program.movimentacoes.Clear();
-                Dictionary<string, List<(string, string, string, string, string, string)>> linhas = new();
                 using (var wb = new XLWorkbook(razaoPath))
                 {
                     var ws = wb.Worksheet(1);
 
                     for (int i = 2; i <= 1000 /*ws.RowsUsed().Count()*/; i++)
                     {
-
+                        //Atribuindo todos registros à variáveis.
                         var row = ws.Row(i);
                         string codigoFornecedor = row.Cell("D").Value.ToString();
                         string classificacaoFornecedor = row.Cell("B").Value.ToString();
@@ -38,20 +36,9 @@ namespace Conciliacao_Plamev
                         string valorCredito = row.Cell("M").Value.ToString();
 
 
-                        if (nomeFornecedor != "FORNECEDORES DIVERSOS" && !linhas.ContainsKey(nomeFornecedor))
+                        bool contemFornecedor = BancoDeDados.GetContas().Any(x => x.codigo == codigoFornecedor);
+                        if (nomeFornecedor != "FORNECEDORES DIVERSOS" && !contemFornecedor) //Verifica se a conta não é de fornecedores diversos e se a conta já existe no banco de dados.
                         {
-                            linhas[nomeFornecedor] = new List<(string, string, string, string, string, string)> {
-
-                            (codigoFornecedor, classificacaoFornecedor, nomeFornecedor, dataLançamento, historicoLancamento, saldoAnterior)
-                        };
-
-                            Program.CadastrarConta(
-                                codigoFornecedor,
-                                $"{classificacaoFornecedor[0]}.{classificacaoFornecedor[1]}.{classificacaoFornecedor[2]}.{classificacaoFornecedor.Substring(3, 2)}.{classificacaoFornecedor.Substring(5, 4)}",
-                                nomeFornecedor,
-                                double.Parse(saldoAnterior) * (-1)
-                                );
-
                             BancoDeDados.AddConta(new CodigoContas()
                             {
                                 codigo = codigoFornecedor,
@@ -60,13 +47,8 @@ namespace Conciliacao_Plamev
                                 saldo = 0
                             });
                         }
-                        else if (linhas.ContainsKey(nomeFornecedor))
+                        else if (contemFornecedor) //Se a conta não existir no banco de dados, considera a conta como movimentação.
                         {
-                            linhas[$"{nomeFornecedor}{i}"] = new List<(string, string, string, string, string, string)>
-                        {
-                            ("val", dataLançamento, historicoLancamento, valorCredito, valorDebito, "0")
-                        };
-
                             Program.CadastrarMovimentacao(
                                 codigoFornecedor,
                                 dataLançamento,

@@ -24,48 +24,66 @@ namespace Conciliacao_Plamev
             try
             {
                 SQLiteConnection.CreateFile(@"c:\Data\SaldosEmAberto.sqlite");
-            }catch
+            }
+            catch
             {
                 throw;
             }
-        }  
+        }
         public static void CriarTabelaSQLite()
         {
             try
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS SaldosEmAberto (codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, notaRef TEXT, historico TEXT, credito REAL, dataEncerramento TEXT, PRIMARY KEY (codigoForn, historico));";
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS Movimento (codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, historico TEXT, valorDebito REAL, valorCredito REAL, numNota TEXT, dataEncerramento TEXT, PRIMARY KEY (codigoForn, historico));";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS CadastroContas (codigo TEXT NOT NULL, contaAnalitica TEXT NOT NULL, nomeFornecedor TEXT NOT NULL, saldo REAL, PRIMARY KEY(codigo));";
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS CadastroContas (codigo TEXT NOT NULL, contaAnalitica TEXT NOT NULL, nomeFornecedor TEXT NOT NULL, PRIMARY KEY(codigo));";
                     cmd.ExecuteNonQuery();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
 
-        public static void AddSaldo(MovimentosAbertos mov)
+        public static void AddMovimento(Movimento mov)
         {
             try
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "INSERT OR IGNORE INTO SaldosEmAberto(codigoForn, dataMov, notaRef, historico, credito) values (@codigoForn, @dataMov, @notaRef, @historico, @credito)";
+                    cmd.CommandText = "INSERT OR IGNORE INTO Movimento(codigoForn, dataMov, historico, valorDebito, valorCredito, numNota, dataEncerramento) values (@codigoForn, @dataMov, @historico, @valorDebito, @valorCredito, @numNota, @dataEncerramento)";
                     cmd.Parameters.AddWithValue("@codigoForn", mov.codigoForn);
                     cmd.Parameters.AddWithValue("@dataMov", mov.dataMov);
-                    cmd.Parameters.AddWithValue("@notaRef", mov.notaRef);
                     cmd.Parameters.AddWithValue("@historico", mov.historico);
-                    cmd.Parameters.AddWithValue("@credito", mov.credito);
-                    cmd.ExecuteNonQuery();
-
-                    cmd.CommandText = "DELETE FROM SaldosEmAberto WHERE credito = 0;";
+                    cmd.Parameters.AddWithValue("@valorDebito", mov.debito);
+                    cmd.Parameters.AddWithValue("@valorCredito", mov.credito);
+                    cmd.Parameters.AddWithValue("@numNota", mov.notaRef);
+                    cmd.Parameters.AddWithValue("@dataEncerramento", mov.dataEncerramento);
                     cmd.ExecuteNonQuery();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public static void AddConta(CodigoContas conta)
+        {
+            try
+            {
+                using (var cmd = DbConnection().CreateCommand())
+                {
+                    cmd.CommandText = "INSERT OR IGNORE INTO CadastroContas(codigo, contaAnalitica, nomeFornecedor) values (@codigo, @contaAnalitica, @nomeFornecedor)";
+                    cmd.Parameters.AddWithValue("@codigo", conta.codigoForn);
+                    cmd.Parameters.AddWithValue("@contaAnalitica", conta.contaAnalitica);
+                    cmd.Parameters.AddWithValue("@nomeFornecedor", conta.nomeForn);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -84,59 +102,44 @@ namespace Conciliacao_Plamev
                     cmd.ExecuteNonQuery();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
 
-        public static void AddConta(CodigoContas contas)
+
+
+        public static List<Movimento> GetMovimentos()
         {
+            List<Movimento> lista = new();
             try
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "INSERT OR IGNORE INTO CadastroContas(codigo, contaAnalitica, nomeFornecedor, saldo) values (@codigo, @contaAnalitica, @nomeFornecedor, @saldo)";
-                    cmd.Parameters.AddWithValue("@codigo", contas.codigo);
-                    cmd.Parameters.AddWithValue("@contaAnalitica", contas.contaAnalitica);
-                    cmd.Parameters.AddWithValue("@nomeFornecedor", contas.nomeFornecedor);
-                    cmd.Parameters.AddWithValue("@saldo", contas.saldo);
-                    cmd.ExecuteNonQuery();
-                }
-
-            }catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public static List<MovimentosAbertos> GetSaldos()
-        {
-            List<MovimentosAbertos> lista = new();
-            try
-            {
-                using (var cmd = DbConnection().CreateCommand())
-                {
-                    cmd.CommandText = "SELECT * FROM SaldosEmAberto";
+                    cmd.CommandText = "SELECT * FROM Movimento";
                     using (var reader = cmd.ExecuteReader())
                     {
-                        while(reader.Read())
+                        while (reader.Read())
                         {
-                            lista.Add(new MovimentosAbertos
+                            lista.Add(new Movimento
                             {
                                 codigoForn = reader["codigoForn"].ToString(),
                                 dataMov = reader["dataMov"].ToString(),
-                                notaRef = reader["notaRef"].ToString(),
                                 historico = reader["historico"].ToString(),
-                                credito = Convert.ToDouble(reader["credito"]),
+                                debito = Convert.ToDouble(reader["valorDebito"]),
+                                credito = Convert.ToDouble(reader["valorCredito"]),
+                                notaRef = reader["numNota"].ToString(),
                                 dataEncerramento = reader["dataEncerramento"].ToString()
                             });
 
                         }
                         return lista;
                     }
-                };
-            }catch(Exception ex)
+                }
+                ;
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -155,10 +158,9 @@ namespace Conciliacao_Plamev
                         {
                             lista.Add(new CodigoContas
                             {
-                                codigo = reader["codigo"].ToString(),
+                                codigoForn = reader["codigo"].ToString(),
                                 contaAnalitica = reader["contaAnalitica"].ToString(),
-                                nomeFornecedor = reader["nomeFornecedor"].ToString(),
-                                saldo = Convert.ToDouble(reader["saldo"])
+                                nomeForn = reader["nomeFornecedor"].ToString()
                             });
 
                         }
@@ -168,56 +170,6 @@ namespace Conciliacao_Plamev
                 ;
             }
             catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        public static void UpdateSaldo(string conta, double saldo)
-        {
-            try
-            {
-                using (var cmd = new SQLiteCommand(DbConnection()))
-                {
-                    cmd.CommandText = "UPDATE CadastroContas SET saldo=@Saldo WHERE codigo=@Codigo";
-                    cmd.Parameters.AddWithValue("@Codigo", conta);
-                    cmd.Parameters.AddWithValue("@Saldo", saldo);
-                    cmd.ExecuteNonQuery();
-                }
-            }catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        public static void SomaSaldo(string conta, double saldo)
-        {
-            try
-            {
-                using (var cmd = new SQLiteCommand(DbConnection()))
-                {
-                    cmd.CommandText = "UPDATE CadastroContas SET saldo = saldo + @Saldo WHERE codigo=@Codigo";
-                    cmd.Parameters.AddWithValue("@Codigo", conta);
-                    cmd.Parameters.AddWithValue("@Saldo", saldo);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        public static void DeleteSaldo(MovimentosAbertos saldo)
-        {
-            try
-            {
-                using (var cmd = new SQLiteCommand(DbConnection()))
-                {
-                    cmd.CommandText = "DELETE FROM SaldosEmAberto WHERE historico=@Historico AND notaRef=@NotaRef AND credito=@Credito";
-                    cmd.Parameters.AddWithValue("@Historico", saldo.historico);
-                    cmd.Parameters.AddWithValue("@NotaRef", saldo.notaRef);
-                    cmd.Parameters.AddWithValue("@Credito", saldo.credito);
-                    cmd.ExecuteNonQuery();
-                }
-            }catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }

@@ -6,35 +6,6 @@ namespace Conciliacao_Plamev
 {
     internal static class Program
     {
-
-        public static List<CodigoContas> contasCadastradas = new List<CodigoContas>();
-        public static List<Movimentacao> movimentacoes = new List<Movimentacao>();
-        public static void CadastrarConta(string codigo, string contaAnalitica, string nomeFornecedor, double saldo)
-        {
-            var conta = new CodigoContas
-            {
-                codigo = codigo,
-                contaAnalitica = contaAnalitica,
-                nomeFornecedor = nomeFornecedor,
-                saldo = saldo
-            };
-            contasCadastradas.Add(conta);
-        }
-
-        public static void CadastrarMovimentacao(string codigoForn, string dataLancamento, string historico, double debito, double credito, string notaRef)
-        {
-            var movimentacao = new Movimentacao
-            {
-                codigoForn = codigoForn,
-                dataLancamento = dataLancamento,
-                historico = historico,
-                debito = debito,
-                credito = credito,
-                notaRef = notaRef
-            };
-            movimentacoes.Add(movimentacao);
-        }
-
         [STAThread]
         static void Main()
         {

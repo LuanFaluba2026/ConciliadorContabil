@@ -15,7 +15,7 @@ namespace Conciliacao_Plamev
     public class SheetLayout
     {
 
-        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fornecedores.xlsx");
+        string path = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads", "Fornecedores.xlsx"));
         Form1 form = new();
         public void CreateSheet()
         {
@@ -79,10 +79,9 @@ namespace Conciliacao_Plamev
                 }
                 foreach(var s in removerSaldos)
                 {
-                    Debug.WriteLine($"{s.notaRef} || {s.historico}");
-                    BancoDeDados.DeleteSaldo(s);
+                    Debug.WriteLine($"{s.notaRef} || {s.historico} || {mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento}");
+                    BancoDeDados.EncerrarSaldo(s.codigoForn, s.historico, mov.FirstOrDefault(x => x.codigoForn == s.codigoForn).dataLancamento);
                 }
-                saldosPorConta.RemoveAll(x => removerSaldos.Contains(x));
                 mov.RemoveAll(x => remover.Contains(x));
 
                 if(mov.Count != 0 || saldosPorConta.Count != 0)
@@ -110,19 +109,43 @@ namespace Conciliacao_Plamev
 
                 foreach(var s in saldosPorConta)
                 {
-                    var row = ws.Row(3 + linhasUsadas - alturaFixa).InsertRowsAbove(1);
-                    linhasUsadas++;
-                    ws.Cell(3 + linhasUsadas - alturaFixa, "F").FormulaA1 = $"=SUM(f{2 + linhasUsadas - alturaFixa}:F{1 + linhasUsadas - alturaFixa})";
-                    foreach (var cells in row)
+                    Debug.WriteLine(s.dataEncerramento);
+                    if(String.IsNullOrEmpty(s.dataEncerramento))
                     {
-                        cells.Cell("A").Value = s.dataMov;
-                        cells.Cell("C").Value = s.historico;
-                        cells.Cell("F").Value = s.credito;
-                        cells.Cell("A").Style.Font.FontColor = XLColor.Red;
-                        cells.Cell("C").Style.Font.FontColor = XLColor.Red;
-                        cells.Cell("F").Style.Font.FontColor = XLColor.Red;
+                        var row = ws.Row(3 + linhasUsadas - alturaFixa).InsertRowsAbove(1);
+                        linhasUsadas++;
+                        ws.Cell(3 + linhasUsadas - alturaFixa, "F").FormulaA1 = $"=SUM(f{2 + linhasUsadas - alturaFixa}:F{1 + linhasUsadas - alturaFixa})";
+                        foreach (var cells in row)
+                        {
+                            cells.Cell("A").Value = s.dataMov;
+                            cells.Cell("C").Value = s.historico;
+                            cells.Cell("F").Value = s.credito;
+                            cells.Cell("A").Style.Font.FontColor = XLColor.Red;
+                            cells.Cell("C").Style.Font.FontColor = XLColor.Red;
+                            cells.Cell("F").Style.Font.FontColor = XLColor.Red;
+                        }
+                        BancoDeDados.SomaSaldo(contas.codigo, s.credito);
                     }
-                    BancoDeDados.SomaSaldo(contas.codigo, s.credito);
+                    else
+                    {
+                        DateTime encerramento = DateTime.Parse(s.dataEncerramento);
+                        if (encerramento < Form1.competencia)
+                        {
+                            var row = ws.Row(3 + linhasUsadas - alturaFixa).InsertRowsAbove(1);
+                            linhasUsadas++;
+                            ws.Cell(3 + linhasUsadas - alturaFixa, "F").FormulaA1 = $"=SUM(f{2 + linhasUsadas - alturaFixa}:F{1 + linhasUsadas - alturaFixa})";
+                            foreach (var cells in row)
+                            {
+                                cells.Cell("A").Value = s.dataMov;
+                                cells.Cell("C").Value = s.historico;
+                                cells.Cell("F").Value = s.credito;
+                                cells.Cell("A").Style.Font.FontColor = XLColor.Red;
+                                cells.Cell("C").Style.Font.FontColor = XLColor.Red;
+                                cells.Cell("F").Style.Font.FontColor = XLColor.Red;
+                            }
+                            BancoDeDados.SomaSaldo(contas.codigo, s.credito);
+                        }
+                    }
                 }
 
                 double acumulado = 0;

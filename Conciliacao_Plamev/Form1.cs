@@ -84,7 +84,7 @@ namespace Conciliacao_Plamev
             if (!String.IsNullOrEmpty(competenciaTextBox.Text))
             {
                 string[] comp = competenciaTextBox.Text.Split("/");
-                competencia = new DateTime(Int32.Parse(comp[1]), Int32.Parse(comp[0]), 1);
+                competencia = new DateTime(Int32.Parse(comp[1]), Int32.Parse(comp[0]), 1 /*DateTime.DaysInMonth(Int32.Parse(comp[1]), Int32.Parse(comp[0]))*/);
                 Debug.WriteLine(competencia.ToString());
             }
         }
@@ -117,7 +117,7 @@ namespace Conciliacao_Plamev
 
         private void importarSaldosAnterioresToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ImpSaldosAnteriores.ImportarSaldo(@"C:\Users\luan\Downloads\MOVIMENTACOES EM ABERTO.csv");
+            ImpSaldosAnteriores.ImportarSaldo(@"C:\Users\secun\Downloads\MOVIMENTACOES EM ABERTO.csv");
         }
     }
 }

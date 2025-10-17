@@ -31,5 +31,6 @@ namespace Conciliacao_Plamev
         public string? notaRef { get; set; }
         public string? historico { get; set; }
         public double credito { get; set; }
+        public string? dataEncerramento { get; set; }
     }
 }

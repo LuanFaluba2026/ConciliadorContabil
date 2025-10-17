@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Office.Word;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -34,7 +35,7 @@ namespace Conciliacao_Plamev
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS SaldosEmAberto (codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, notaRef TEXT, historico TEXT, credito REAL, PRIMARY KEY (codigoForn));";
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS SaldosEmAberto (codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, notaRef TEXT, historico TEXT, credito REAL, dataEncerramento TEXT, PRIMARY KEY (codigoForn));";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE IF NOT EXISTS CadastroContas (codigo TEXT NOT NULL, contaAnalitica TEXT NOT NULL, nomeFornecedor TEXT NOT NULL, saldo REAL, PRIMARY KEY(codigo));";
                     cmd.ExecuteNonQuery();
@@ -61,6 +62,25 @@ namespace Conciliacao_Plamev
                     cmd.ExecuteNonQuery();
 
                     cmd.CommandText = "DELETE FROM SaldosEmAberto WHERE credito = 0;";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public static void EncerrarSaldo(string codigo, string historico, string data)
+        {
+            try
+            {
+                using (var cmd = new SQLiteCommand(DbConnection()))
+                {
+                    cmd.CommandText = "UPDATE SaldosEmAberto SET dataEncerramento=@DataEncerramento WHERE codigoForn=@Codigo AND historico=@Historico";
+                    cmd.Parameters.AddWithValue("@DataEncerramento", data);
+                    cmd.Parameters.AddWithValue("@Historico", historico);
+                    cmd.Parameters.AddWithValue("@Codigo", codigo);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -108,7 +128,8 @@ namespace Conciliacao_Plamev
                                 dataMov = reader["dataMov"].ToString(),
                                 notaRef = reader["notaRef"].ToString(),
                                 historico = reader["historico"].ToString(),
-                                credito = Convert.ToDouble(reader["credito"])
+                                credito = Convert.ToDouble(reader["credito"]),
+                                dataEncerramento = reader["dataEncerramento"].ToString()
                             });
 
                         }

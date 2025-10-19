@@ -18,9 +18,9 @@ namespace Conciliacao_Plamev
                 foreach (string line in lines.Skip(1))
                 {
                     string[] col = line.Split(";");
-                    if (BancoDeDados.GetContas().Any(x => x.codigo == col[0]))
+                    if (BancoDeDados.GetContas().Any(x => x.codigoForn == col[0]))
                     {
-                        BancoDeDados.AddSaldo(new MovimentosAbertos()
+                        BancoDeDados.AddMovimento(new Movimento()
                         {
                             codigoForn = col[0],
                             dataMov = col[1],

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -18,69 +19,96 @@ namespace Conciliacao_Plamev
             InitializeComponent();
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void MostrarMovimento()
         {
-            var contasCadastradas = Program.contasCadastradas;
-            if (!String.IsNullOrEmpty(textBox1.Text) && contasCadastradas.Any(x => x.codigo == textBox1.Text))
+            CodigoContas contasCadastradas = BancoDeDados.GetContas().FirstOrDefault(x => x.codigoForn == textBox1.Text);
+            if (contasCadastradas != null)
             {
-
+                List<Movimento> movConta = mostrarEncerrados.Checked ?
+                                                   BancoDeDados.GetMovimentos().Where(x => x.codigoForn == textBox1.Text).ToList() :
+                                                   BancoDeDados.GetMovimentos().Where(x => x.codigoForn == textBox1.Text && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
+                dataGridView1.DataSource = movConta.OrderByDescending(x => x.dataEncerramento).ToList();
+                dataGridView1.AutoResizeColumns();
+                dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                dataGridView1.Columns["historico"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                for (int i = 0; i <= dataGridView1.Columns.Count - 1; i++)
+                {
+                    dataGridView1.Columns[i].ReadOnly = true;
+                }
             }
             else
             {
-                MessageBox.Show("Código Inválido.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Conta não encontrada.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private void EditarButton_Click(object sender, EventArgs e)
+
+        //Altera elementos baseado na boolean
+        private void Editar()
         {
-            if (!String.IsNullOrEmpty(textBox1.Text))
+            if (isEditing)
             {
+                textBox1.Enabled = false;
+                mostrarEncerrados.Enabled = false;
+
                 EditarButton.Enabled = false;
                 SalvarButton.Enabled = true;
                 CancelarButton.Enabled = true;
-                dataGridView1.AllowUserToAddRows = true;
-                dataGridView1.AllowUserToDeleteRows = true;
-                foreach (DataGridViewColumn column in dataGridView1.Columns)
+
+                for (int i = 1; i <= dataGridView1.Columns.Count - 1; i++)
                 {
-                    column.ReadOnly = false;
+                    dataGridView1.Columns[i].ReadOnly = false;
                 }
             }
             else
             {
-                MessageBox.Show("Insira um código de fornecedor.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            }
-        }
+                textBox1.Enabled = true;
+                mostrarEncerrados.Enabled = true;
 
-        private void CancelarButton_Click(object sender, EventArgs e)
-        {
-            if (!EditarButton.Enabled)
-            {
                 EditarButton.Enabled = true;
                 SalvarButton.Enabled = false;
                 CancelarButton.Enabled = false;
-                dataGridView1.AllowUserToAddRows = false;
-                foreach (DataGridViewColumn column in dataGridView1.Columns)
+
+                for (int i = 0; i <= dataGridView1.Columns.Count - 1; i++)
                 {
-                    column.ReadOnly = true;
+                    dataGridView1.Columns[i].ReadOnly = true;
+                }
+                dataGridView1.DataSource = null;
+            }
+        }
+
+        //Chama função ao alterar valor da boolean.
+        private bool _editando;
+        public bool isEditing
+        {
+            get { return _editando; }
+            set
+            {
+                if (_editando != value)
+                {
+                    _editando = value;
+                    Editar();
                 }
             }
         }
-
+        private void textBox1_Leave(object sender, EventArgs e)
+        {
+            MostrarMovimento();
+        }
+        private void EditarButton_Click(object sender, EventArgs e)
+        {
+            isEditing = true;
+        }
         private void SalvarButton_Click(object sender, EventArgs e)
         {
-            dataGridView1.EndEdit();
-            EditarButton.Enabled = true;
-            SalvarButton.Enabled = false;
-            CancelarButton.Enabled = false;
-            dataGridView1.AllowUserToAddRows = false;
-            foreach (DataGridViewColumn column in dataGridView1.Columns)
-            {
-                column.ReadOnly = true;
-            }
+            isEditing = false;
         }
-
-        private void textBox1_TextChanged_1(object sender, EventArgs e)
+        private void CancelarButton_Click(object sender, EventArgs e)
         {
-
+            isEditing = false;
+        }
+        private void mostrarEncerrados_CheckedChanged(object sender, EventArgs e)
+        {
+            MostrarMovimento();
         }
     }
 }

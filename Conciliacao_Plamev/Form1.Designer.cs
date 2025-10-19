@@ -174,8 +174,7 @@
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleMode = AutoScaleMode.None;
             ClientSize = new Size(524, 268);
             Controls.Add(competenciaTextBox);
             Controls.Add(label1);
@@ -187,6 +186,7 @@
             MainMenuStrip = menuStrip1;
             MaximizeBox = false;
             Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Conciliação Plamev";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();

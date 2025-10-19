@@ -37,11 +37,9 @@ namespace Conciliacao_Plamev
             ProcessButton.Enabled = false;
 
             Stopwatch sw = new();
-            ConverterRazao conv = new();
             SheetLayout sheetL = new();
-            Form1 form = new();
-
             BancoDeDados.CriarTabelaSQLite();
+
             try
             {
                 if (!String.IsNullOrEmpty(competenciaTextBox.Text) && !String.IsNullOrEmpty(razaoPath))
@@ -50,20 +48,8 @@ namespace Conciliacao_Plamev
                     logBox.AppendText("\r\nIniciando Processamento...\r\n");
                     await Task.Run(() =>
                     {
-                        conv.Conversao();
-                        sheetL.CreateSheet();
-                        Program.movimentacoes.Clear();
-
-
-                        Invoke(new Action(() =>
-                        {
-                            foreach (var contas in Program.contasCadastradas)
-                            {
-                                string log = $"{contas.codigo} / {contas.contaAnalitica} / {contas.nomeFornecedor} / {contas.saldo}";
-                                logBox.AppendText($"{log}\r\n");
-                            }
-                        }));
-
+                        ConverterRazao.Conversao();
+                        SheetLayout.CreateSheet();
                     });
                     sw.Stop();
                     logBox.AppendText($"\r\n Processamento Concluído ! ({sw.Elapsed.ToString(@"hh\:mm\:ss")})");
@@ -94,7 +80,6 @@ namespace Conciliacao_Plamev
         }
         private void competenciaTextBox_TextChanged(object sender, EventArgs e)
         {
-
             competenciaTextBox.TextChanged -= competenciaTextBox_TextChanged;
 
             string texto = competenciaTextBox.Text;
@@ -121,7 +106,7 @@ namespace Conciliacao_Plamev
 
         private void importarSaldosAnterioresToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ImpSaldosAnteriores.ImportarSaldo(@"C:\Users\luan\Downloads\MOVIMENTACOES EM ABERTO.csv");
+            ImpSaldosAnteriores.ImportarSaldo(@"C:\Users\secun\Downloads\MOVIMENTACOES EM ABERTO.csv");
         }
     }
 }

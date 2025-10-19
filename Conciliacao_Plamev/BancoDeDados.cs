@@ -15,7 +15,7 @@ namespace Conciliacao_Plamev
 
         private static SQLiteConnection DbConnection()
         {
-            sqliteConnection = new SQLiteConnection("Data Source=c:\\Data\\SaldosEmAberto.sqlite; Version=3");
+            sqliteConnection = new SQLiteConnection("Data Source=c:\\Data\\BancoDeDados_Movimentação.sqlite; Version=3");
             sqliteConnection.Open();
             return sqliteConnection;
         }
@@ -23,7 +23,7 @@ namespace Conciliacao_Plamev
         {
             try
             {
-                SQLiteConnection.CreateFile(@"c:\Data\SaldosEmAberto.sqlite");
+                SQLiteConnection.CreateFile(@"c:\Data\BancoDeDados_Movimentação.sqlite");
             }
             catch
             {
@@ -89,13 +89,13 @@ namespace Conciliacao_Plamev
             }
         }
 
-        public static void EncerrarSaldo(string codigo, string historico, string data)
+        public static void EncerrarMovimento(string codigo, string historico, string data)
         {
             try
             {
                 using (var cmd = new SQLiteCommand(DbConnection()))
                 {
-                    cmd.CommandText = "UPDATE SaldosEmAberto SET dataEncerramento=@DataEncerramento WHERE codigoForn=@Codigo AND historico=@Historico";
+                    cmd.CommandText = "UPDATE Movimento SET dataEncerramento=@DataEncerramento WHERE codigoForn=@Codigo AND historico=@Historico";
                     cmd.Parameters.AddWithValue("@DataEncerramento", data);
                     cmd.Parameters.AddWithValue("@Historico", historico);
                     cmd.Parameters.AddWithValue("@Codigo", codigo);

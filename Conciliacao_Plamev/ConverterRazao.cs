@@ -12,17 +12,17 @@ namespace Conciliacao_Plamev
 {
     internal class ConverterRazao
     {
-        string razaoPath = Form1.razaoPath;
         //Função usada para pegar as informações no razão do Domínio e realizar o Parsing
-        public void Conversao()
+        public static void Conversao()
         {
             try
             {
+                string razaoPath = Form1.razaoPath;
                 using (var wb = new XLWorkbook(razaoPath))
                 {
                     var ws = wb.Worksheet(1);
 
-                    for (int i = 2; i <= 1000 /*ws.RowsUsed().Count()*/; i++)
+                    for (int i = 2; i <= ws.RowsUsed().Count(); i++)
                     {
                         //Atribuindo todos registros à variáveis.
                         var row = ws.Row(i);
@@ -35,29 +35,30 @@ namespace Conciliacao_Plamev
                         string valorDebito = row.Cell("L").Value.ToString();
                         string valorCredito = row.Cell("M").Value.ToString();
 
-
-                        bool contemFornecedor = BancoDeDados.GetContas().Any(x => x.codigo == codigoFornecedor);
-                        if (nomeFornecedor != "FORNECEDORES DIVERSOS" && !contemFornecedor) //Verifica se a conta não é de fornecedores diversos e se a conta já existe no banco de dados.
+                        if(nomeFornecedor != "FORNECEDORES DIVERSOS")
                         {
-                            BancoDeDados.AddConta(new CodigoContas()
+                            if (valorCredito == "0" && valorDebito == "0") //Verifica se a conta não é de fornecedores diversos e se a conta já existe no banco de dados.
                             {
-                                codigo = codigoFornecedor,
-                                contaAnalitica = $"{classificacaoFornecedor[0]}.{classificacaoFornecedor[1]}.{classificacaoFornecedor[2]}.{classificacaoFornecedor.Substring(3, 2)}.{classificacaoFornecedor.Substring(5, 4)}",
-                                nomeFornecedor = nomeFornecedor,
-                                saldo = 0
-                            });
-                        }
-                        else if (contemFornecedor) //Se a conta não existir no banco de dados, considera a conta como movimentação.
-                        {
-                            Program.CadastrarMovimentacao(
-                                codigoFornecedor,
-                                dataLançamento,
-                                historicoLancamento,
-                                double.Parse(valorDebito) * (-1),
-                                double.Parse(valorCredito),
-                                BuscarNfRef(historicoLancamento)
-                            );
+                                BancoDeDados.AddConta(new CodigoContas()
+                                {
+                                    codigoForn = codigoFornecedor,
+                                    contaAnalitica = $"{classificacaoFornecedor[0]}.{classificacaoFornecedor[1]}.{classificacaoFornecedor[2]}.{classificacaoFornecedor.Substring(3, 2)}.{classificacaoFornecedor.Substring(5, 4)}",
+                                    nomeForn = nomeFornecedor,
+                                });
+                            }
+                            else //Se a conta não existir no banco de dados, considera a conta como movimentação.
+                            {
+                                BancoDeDados.AddMovimento(new Movimento()
+                                {
+                                    codigoForn = codigoFornecedor,
+                                    dataMov = dataLançamento,
+                                    historico = historicoLancamento,
+                                    debito = double.Parse(valorDebito) * (-1),
+                                    credito = double.Parse(valorCredito),
+                                    notaRef = BuscarNfRef(historicoLancamento)
+                                });
 
+                            }
                         }
                     }
                 }
@@ -69,7 +70,7 @@ namespace Conciliacao_Plamev
             
         }
 
-        private string BuscarNfRef(string historico)
+        private static string BuscarNfRef(string historico)
         {
             string[] words = historico.Split(' ');
             string[] possiveisCombinacoes =
@@ -90,7 +91,7 @@ namespace Conciliacao_Plamev
                     n = n.StartsWith("2025") ? n.Substring(4) : n;
                     n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
                     n = n.TrimStart('0');
-                    Debug.WriteLine($"{n} || {historico}");
+                    //Debug.WriteLine($"{n} || {historico}");
                     return n;
                 }
             }

@@ -28,30 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             fixo1 = new Label();
             textBox1 = new TextBox();
             consultaFornecedor = new Label();
             consultaSaldo = new Label();
             dataGridView1 = new DataGridView();
-            dataMovDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            notaRefDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            historicoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            creditoDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
-            movimentosAbertosBindingSource = new BindingSource(components);
             SalvarButton = new Button();
             EditarButton = new Button();
             CancelarButton = new Button();
-            bindingSource1 = new BindingSource(components);
+            mostrarEncerrados = new CheckBox();
+            button1 = new Button();
+            button2 = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)movimentosAbertosBindingSource).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)bindingSource1).BeginInit();
             SuspendLayout();
             // 
             // fixo1
             // 
             fixo1.AutoSize = true;
-            fixo1.Location = new Point(12, 26);
+            fixo1.Location = new Point(12, 16);
             fixo1.Name = "fixo1";
             fixo1.Size = new Size(52, 15);
             fixo1.TabIndex = 0;
@@ -59,17 +53,16 @@
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(70, 23);
+            textBox1.Location = new Point(70, 13);
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(100, 23);
             textBox1.TabIndex = 1;
-            textBox1.TextChanged += textBox1_TextChanged_1;
-            textBox1.Leave += textBox1_TextChanged;
+            textBox1.Leave += textBox1_Leave;
             // 
             // consultaFornecedor
             // 
             consultaFornecedor.AutoSize = true;
-            consultaFornecedor.Location = new Point(192, 26);
+            consultaFornecedor.Location = new Point(12, 45);
             consultaFornecedor.Name = "consultaFornecedor";
             consultaFornecedor.Size = new Size(70, 15);
             consultaFornecedor.TabIndex = 2;
@@ -78,7 +71,7 @@
             // consultaSaldo
             // 
             consultaSaldo.AutoSize = true;
-            consultaSaldo.Location = new Point(558, 52);
+            consultaSaldo.Location = new Point(1030, 482);
             consultaSaldo.Name = "consultaSaldo";
             consultaSaldo.Size = new Size(96, 15);
             consultaSaldo.TabIndex = 3;
@@ -90,55 +83,19 @@
             dataGridView1.AllowUserToDeleteRows = false;
             dataGridView1.AllowUserToResizeColumns = false;
             dataGridView1.AllowUserToResizeRows = false;
-            dataGridView1.AutoGenerateColumns = false;
             dataGridView1.BackgroundColor = SystemColors.ControlLight;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { dataMovDataGridViewTextBoxColumn, notaRefDataGridViewTextBoxColumn, historicoDataGridViewTextBoxColumn, creditoDataGridViewTextBoxColumn });
-            dataGridView1.DataSource = movimentosAbertosBindingSource;
             dataGridView1.EnableHeadersVisualStyles = false;
-            dataGridView1.Location = new Point(12, 70);
+            dataGridView1.Location = new Point(12, 117);
             dataGridView1.MultiSelect = false;
             dataGridView1.Name = "dataGridView1";
-            dataGridView1.Size = new Size(744, 255);
+            dataGridView1.Size = new Size(1213, 362);
             dataGridView1.TabIndex = 4;
-            // 
-            // dataMovDataGridViewTextBoxColumn
-            // 
-            dataMovDataGridViewTextBoxColumn.DataPropertyName = "dataMov";
-            dataMovDataGridViewTextBoxColumn.HeaderText = "dataMov";
-            dataMovDataGridViewTextBoxColumn.Name = "dataMovDataGridViewTextBoxColumn";
-            dataMovDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // notaRefDataGridViewTextBoxColumn
-            // 
-            notaRefDataGridViewTextBoxColumn.DataPropertyName = "notaRef";
-            notaRefDataGridViewTextBoxColumn.HeaderText = "notaRef";
-            notaRefDataGridViewTextBoxColumn.Name = "notaRefDataGridViewTextBoxColumn";
-            notaRefDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // historicoDataGridViewTextBoxColumn
-            // 
-            historicoDataGridViewTextBoxColumn.DataPropertyName = "historico";
-            historicoDataGridViewTextBoxColumn.HeaderText = "historico";
-            historicoDataGridViewTextBoxColumn.Name = "historicoDataGridViewTextBoxColumn";
-            historicoDataGridViewTextBoxColumn.ReadOnly = true;
-            historicoDataGridViewTextBoxColumn.Width = 400;
-            // 
-            // creditoDataGridViewTextBoxColumn
-            // 
-            creditoDataGridViewTextBoxColumn.DataPropertyName = "credito";
-            creditoDataGridViewTextBoxColumn.HeaderText = "credito";
-            creditoDataGridViewTextBoxColumn.Name = "creditoDataGridViewTextBoxColumn";
-            creditoDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // movimentosAbertosBindingSource
-            // 
-            movimentosAbertosBindingSource.DataSource = typeof(MovimentosAbertos);
             // 
             // SalvarButton
             // 
             SalvarButton.Enabled = false;
-            SalvarButton.Location = new Point(762, 99);
+            SalvarButton.Location = new Point(1128, 41);
             SalvarButton.Name = "SalvarButton";
             SalvarButton.Size = new Size(97, 23);
             SalvarButton.TabIndex = 5;
@@ -148,7 +105,7 @@
             // 
             // EditarButton
             // 
-            EditarButton.Location = new Point(762, 70);
+            EditarButton.Location = new Point(1128, 12);
             EditarButton.Name = "EditarButton";
             EditarButton.Size = new Size(97, 23);
             EditarButton.TabIndex = 6;
@@ -159,7 +116,7 @@
             // CancelarButton
             // 
             CancelarButton.Enabled = false;
-            CancelarButton.Location = new Point(762, 128);
+            CancelarButton.Location = new Point(1128, 70);
             CancelarButton.Name = "CancelarButton";
             CancelarButton.Size = new Size(97, 23);
             CancelarButton.TabIndex = 7;
@@ -167,11 +124,47 @@
             CancelarButton.UseVisualStyleBackColor = true;
             CancelarButton.Click += CancelarButton_Click;
             // 
+            // mostrarEncerrados
+            // 
+            mostrarEncerrados.AutoSize = true;
+            mostrarEncerrados.Location = new Point(12, 96);
+            mostrarEncerrados.Name = "mostrarEncerrados";
+            mostrarEncerrados.Size = new Size(198, 19);
+            mostrarEncerrados.TabIndex = 8;
+            mostrarEncerrados.Text = "Mostrar movimentos encerrados";
+            mostrarEncerrados.UseVisualStyleBackColor = true;
+            mostrarEncerrados.CheckedChanged += mostrarEncerrados_CheckedChanged;
+            // 
+            // button1
+            // 
+            button1.Font = new Font("Book Antiqua", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button1.Location = new Point(12, 485);
+            button1.Name = "button1";
+            button1.Size = new Size(30, 27);
+            button1.TabIndex = 9;
+            button1.Text = "+";
+            button1.TextAlign = ContentAlignment.TopCenter;
+            button1.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            button2.Font = new Font("Book Antiqua", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button2.Location = new Point(48, 485);
+            button2.Name = "button2";
+            button2.Size = new Size(30, 27);
+            button2.TabIndex = 10;
+            button2.Text = "-";
+            button2.TextAlign = ContentAlignment.TopCenter;
+            button2.UseVisualStyleBackColor = true;
+            // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(871, 346);
+            ClientSize = new Size(1238, 519);
+            Controls.Add(button2);
+            Controls.Add(button1);
+            Controls.Add(mostrarEncerrados);
             Controls.Add(CancelarButton);
             Controls.Add(EditarButton);
             Controls.Add(SalvarButton);
@@ -180,11 +173,11 @@
             Controls.Add(consultaFornecedor);
             Controls.Add(textBox1);
             Controls.Add(fixo1);
+            MaximizeBox = false;
             Name = "Form2";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Saldos Anteriores";
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)movimentosAbertosBindingSource).EndInit();
-            ((System.ComponentModel.ISupportInitialize)bindingSource1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -196,14 +189,11 @@
         private Label consultaFornecedor;
         private Label consultaSaldo;
         private DataGridView dataGridView1;
-        private BindingSource movimentosAbertosBindingSource;
         private Button SalvarButton;
         private Button EditarButton;
         private Button CancelarButton;
-        private DataGridViewTextBoxColumn dataMovDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn notaRefDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn historicoDataGridViewTextBoxColumn;
-        private DataGridViewTextBoxColumn creditoDataGridViewTextBoxColumn;
-        private BindingSource bindingSource1;
+        private CheckBox mostrarEncerrados;
+        private Button button1;
+        private Button button2;
     }
 }

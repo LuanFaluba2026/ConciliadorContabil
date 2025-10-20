@@ -33,7 +33,6 @@
             consultaFornecedor = new Label();
             consultaSaldo = new Label();
             dataGridView1 = new DataGridView();
-            SalvarButton = new Button();
             EditarButton = new Button();
             CancelarButton = new Button();
             mostrarEncerrados = new CheckBox();
@@ -97,17 +96,8 @@
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.Size = new Size(1213, 362);
             dataGridView1.TabIndex = 4;
-            // 
-            // SalvarButton
-            // 
-            SalvarButton.Enabled = false;
-            SalvarButton.Location = new Point(1128, 41);
-            SalvarButton.Name = "SalvarButton";
-            SalvarButton.Size = new Size(97, 23);
-            SalvarButton.TabIndex = 5;
-            SalvarButton.Text = "Salvar";
-            SalvarButton.UseVisualStyleBackColor = true;
-            SalvarButton.Click += SalvarButton_Click;
+            dataGridView1.CellEndEdit += dataGridView1_CellEndEdit;
+            dataGridView1.RowValidated += dataGridView1_RowValidated;
             // 
             // EditarButton
             // 
@@ -121,7 +111,7 @@
             // 
             // CancelarButton
             // 
-            CancelarButton.Location = new Point(1128, 70);
+            CancelarButton.Location = new Point(1128, 41);
             CancelarButton.Name = "CancelarButton";
             CancelarButton.Size = new Size(97, 23);
             CancelarButton.TabIndex = 7;
@@ -151,6 +141,7 @@
             BotaoAdicionar.Text = "+";
             BotaoAdicionar.TextAlign = ContentAlignment.TopCenter;
             BotaoAdicionar.UseVisualStyleBackColor = true;
+            BotaoAdicionar.Click += BotaoAdicionar_Click;
             // 
             // BotaoExcluir
             // 
@@ -175,12 +166,12 @@
             Controls.Add(mostrarEncerrados);
             Controls.Add(CancelarButton);
             Controls.Add(EditarButton);
-            Controls.Add(SalvarButton);
             Controls.Add(dataGridView1);
             Controls.Add(consultaSaldo);
             Controls.Add(consultaFornecedor);
             Controls.Add(textBox1);
             Controls.Add(fixo1);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             Name = "Form2";
             StartPosition = FormStartPosition.CenterScreen;
@@ -197,7 +188,6 @@
         private Label consultaFornecedor;
         private Label consultaSaldo;
         private DataGridView dataGridView1;
-        private Button SalvarButton;
         private Button EditarButton;
         private Button CancelarButton;
         private CheckBox mostrarEncerrados;

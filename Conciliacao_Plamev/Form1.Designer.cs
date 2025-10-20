@@ -37,11 +37,7 @@
             competenciaTextBox = new TextBox();
             menuStrip1 = new MenuStrip();
             cadastrosToolStripMenuItem = new ToolStripMenuItem();
-            gerenciamentoContasToolStripMenuItem = new ToolStripMenuItem();
             gerenciamentoSaldosAnterioresToolStripMenuItem = new ToolStripMenuItem();
-            relatóriosToolStripMenuItem = new ToolStripMenuItem();
-            contasCadastradasToolStripMenuItem = new ToolStripMenuItem();
-            saldosAnterioresToolStripMenuItem = new ToolStripMenuItem();
             importaçãoToolStripMenuItem = new ToolStripMenuItem();
             importarSaldosAnterioresToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
@@ -108,7 +104,7 @@
             // menuStrip1
             // 
             menuStrip1.BackColor = SystemColors.ButtonHighlight;
-            menuStrip1.Items.AddRange(new ToolStripItem[] { cadastrosToolStripMenuItem, relatóriosToolStripMenuItem, importaçãoToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { cadastrosToolStripMenuItem, importaçãoToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.RenderMode = ToolStripRenderMode.System;
@@ -119,16 +115,10 @@
             // cadastrosToolStripMenuItem
             // 
             cadastrosToolStripMenuItem.BackColor = SystemColors.ButtonHighlight;
-            cadastrosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { gerenciamentoContasToolStripMenuItem, gerenciamentoSaldosAnterioresToolStripMenuItem });
+            cadastrosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { gerenciamentoSaldosAnterioresToolStripMenuItem });
             cadastrosToolStripMenuItem.Name = "cadastrosToolStripMenuItem";
             cadastrosToolStripMenuItem.Size = new Size(71, 20);
             cadastrosToolStripMenuItem.Text = "Cadastros";
-            // 
-            // gerenciamentoContasToolStripMenuItem
-            // 
-            gerenciamentoContasToolStripMenuItem.Name = "gerenciamentoContasToolStripMenuItem";
-            gerenciamentoContasToolStripMenuItem.Size = new Size(249, 22);
-            gerenciamentoContasToolStripMenuItem.Text = "Gerenciamento Contas";
             // 
             // gerenciamentoSaldosAnterioresToolStripMenuItem
             // 
@@ -136,26 +126,6 @@
             gerenciamentoSaldosAnterioresToolStripMenuItem.Size = new Size(249, 22);
             gerenciamentoSaldosAnterioresToolStripMenuItem.Text = "Gerenciamento Saldos Anteriores";
             gerenciamentoSaldosAnterioresToolStripMenuItem.Click += gerenciamentoSaldosAnterioresToolStripMenuItem_Click;
-            // 
-            // relatóriosToolStripMenuItem
-            // 
-            relatóriosToolStripMenuItem.BackColor = SystemColors.ControlLight;
-            relatóriosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { contasCadastradasToolStripMenuItem, saldosAnterioresToolStripMenuItem });
-            relatóriosToolStripMenuItem.Name = "relatóriosToolStripMenuItem";
-            relatóriosToolStripMenuItem.Size = new Size(71, 20);
-            relatóriosToolStripMenuItem.Text = "Relatórios";
-            // 
-            // contasCadastradasToolStripMenuItem
-            // 
-            contasCadastradasToolStripMenuItem.Name = "contasCadastradasToolStripMenuItem";
-            contasCadastradasToolStripMenuItem.Size = new Size(178, 22);
-            contasCadastradasToolStripMenuItem.Text = "Contas Cadastradas";
-            // 
-            // saldosAnterioresToolStripMenuItem
-            // 
-            saldosAnterioresToolStripMenuItem.Name = "saldosAnterioresToolStripMenuItem";
-            saldosAnterioresToolStripMenuItem.Size = new Size(178, 22);
-            saldosAnterioresToolStripMenuItem.Text = "Saldos Anteriores";
             // 
             // importaçãoToolStripMenuItem
             // 
@@ -207,9 +177,6 @@
         private ToolStripMenuItem cadastrosToolStripMenuItem;
         private ToolStripMenuItem gerenciamentoContasToolStripMenuItem;
         private ToolStripMenuItem gerenciamentoSaldosAnterioresToolStripMenuItem;
-        private ToolStripMenuItem relatóriosToolStripMenuItem;
-        private ToolStripMenuItem contasCadastradasToolStripMenuItem;
-        private ToolStripMenuItem saldosAnterioresToolStripMenuItem;
         private ToolStripMenuItem importaçãoToolStripMenuItem;
         private ToolStripMenuItem importarSaldosAnterioresToolStripMenuItem;
     }

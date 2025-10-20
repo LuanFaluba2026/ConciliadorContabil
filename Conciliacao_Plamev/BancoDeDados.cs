@@ -25,9 +25,9 @@ namespace Conciliacao_Plamev
             {
                 SQLiteConnection.CreateFile(@"c:\Data\BancoDeDados_Movimentação.sqlite");
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static void CriarTabelaSQLite()
@@ -36,7 +36,7 @@ namespace Conciliacao_Plamev
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS Movimento (codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, historico TEXT, valorDebito REAL, valorCredito REAL, numNota TEXT, dataEncerramento TEXT, PRIMARY KEY (codigoForn, historico));";
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS Movimento (idx INTEGER NOT NULL, codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, historico TEXT, valorDebito REAL, valorCredito REAL, numNota TEXT, dataEncerramento TEXT, PRIMARY KEY (codigoForn, historico));";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE IF NOT EXISTS CadastroContas (codigo TEXT NOT NULL, contaAnalitica TEXT NOT NULL, nomeFornecedor TEXT NOT NULL, PRIMARY KEY(codigo));";
                     cmd.ExecuteNonQuery();
@@ -44,7 +44,7 @@ namespace Conciliacao_Plamev
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -54,7 +54,8 @@ namespace Conciliacao_Plamev
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "INSERT OR IGNORE INTO Movimento(codigoForn, dataMov, historico, valorDebito, valorCredito, numNota, dataEncerramento) values (@codigoForn, @dataMov, @historico, @valorDebito, @valorCredito, @numNota, @dataEncerramento)";
+                    cmd.CommandText = "INSERT OR IGNORE INTO Movimento(idx, codigoForn, dataMov, historico, valorDebito, valorCredito, numNota, dataEncerramento) values (@Index, @codigoForn, @dataMov, @historico, @valorDebito, @valorCredito, @numNota, @dataEncerramento)";
+                    cmd.Parameters.AddWithValue("@Index", BancoDeDados.GetMovimentos().Count + 1);
                     cmd.Parameters.AddWithValue("@codigoForn", mov.codigoForn);
                     cmd.Parameters.AddWithValue("@dataMov", mov.dataMov);
                     cmd.Parameters.AddWithValue("@historico", mov.historico);
@@ -67,7 +68,7 @@ namespace Conciliacao_Plamev
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static void AddConta(CodigoContas conta)
@@ -85,7 +86,7 @@ namespace Conciliacao_Plamev
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -104,7 +105,7 @@ namespace Conciliacao_Plamev
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -124,6 +125,7 @@ namespace Conciliacao_Plamev
                         {
                             lista.Add(new Movimento
                             {
+                                idx = (long)reader["idx"],
                                 codigoForn = reader["codigoForn"].ToString(),
                                 dataMov = reader["dataMov"].ToString(),
                                 historico = reader["historico"].ToString(),
@@ -137,10 +139,10 @@ namespace Conciliacao_Plamev
                         return lista;
                     }
                 }
-                ;
             }
             catch (Exception ex)
             {
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw new Exception(ex.Message);
             }
         }
@@ -171,23 +173,45 @@ namespace Conciliacao_Plamev
             }
             catch (Exception ex)
             {
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw new Exception(ex.Message);
             }
         }
 
-        public static void ExcluirMovimento(string historico)
+        public static void ExcluirMovimento(long index)
         {
             try
             {
                 using (var cmd = new SQLiteCommand(DbConnection()))
                 {
-                    cmd.CommandText = "DELETE FROM Movimento Where historico=@Historico";
-                    cmd.Parameters.AddWithValue("@Historico", historico);
+                    cmd.CommandText = "DELETE FROM Movimento Where idx=@Index";
+                    cmd.Parameters.AddWithValue("@Index", index);
                     cmd.ExecuteNonQuery();
                 }
             }catch(Exception ex)
             {
-                throw new Exception(ex.Message);
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        public static void UpdateMovimento(Movimento mov, long index)
+        {
+            try
+            {
+                using (var cmd = new SQLiteCommand(DbConnection()))
+                {
+                    cmd.CommandText = "UPDATE Movimento SET dataMov = @dataMov, historico = @historico, valorDebito = @valorDebito, valorCredito = @valorCredito, numNota = @notaRef, dataEncerramento = @dataEncerramento WHERE idx=@Index";
+                    cmd.Parameters.AddWithValue("@dataMov", mov.dataMov);
+                    cmd.Parameters.AddWithValue("@historico", mov.historico);
+                    cmd.Parameters.AddWithValue("@valorDebito", mov.debito);
+                    cmd.Parameters.AddWithValue("@valorCredito", mov.credito);
+                    cmd.Parameters.AddWithValue("@notaRef", mov.notaRef);
+                    cmd.Parameters.AddWithValue("@dataEncerramento", mov.dataEncerramento);
+                    cmd.Parameters.AddWithValue("@Index", index);
+                    cmd.ExecuteNonQuery();
+                }
+            }catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

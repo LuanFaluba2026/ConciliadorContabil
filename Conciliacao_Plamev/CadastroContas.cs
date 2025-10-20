@@ -15,6 +15,7 @@ namespace Conciliacao_Plamev
 
     public class Movimento
     {
+        public long idx { get; set; }
         public string? codigoForn { get; set; }
         public string? dataMov { get; set; }
         public string? historico { get; set; }

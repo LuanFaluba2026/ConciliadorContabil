@@ -37,7 +37,6 @@
             competenciaTextBox = new TextBox();
             menuStrip1 = new MenuStrip();
             cadastrosToolStripMenuItem = new ToolStripMenuItem();
-            gerenciamentoContasToolStripMenuItem = new ToolStripMenuItem();
             gerenciamentoSaldosAnterioresToolStripMenuItem = new ToolStripMenuItem();
             relatóriosToolStripMenuItem = new ToolStripMenuItem();
             contasCadastradasToolStripMenuItem = new ToolStripMenuItem();
@@ -119,16 +118,10 @@
             // cadastrosToolStripMenuItem
             // 
             cadastrosToolStripMenuItem.BackColor = SystemColors.ButtonHighlight;
-            cadastrosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { gerenciamentoContasToolStripMenuItem, gerenciamentoSaldosAnterioresToolStripMenuItem });
+            cadastrosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { gerenciamentoSaldosAnterioresToolStripMenuItem });
             cadastrosToolStripMenuItem.Name = "cadastrosToolStripMenuItem";
             cadastrosToolStripMenuItem.Size = new Size(71, 20);
             cadastrosToolStripMenuItem.Text = "Cadastros";
-            // 
-            // gerenciamentoContasToolStripMenuItem
-            // 
-            gerenciamentoContasToolStripMenuItem.Name = "gerenciamentoContasToolStripMenuItem";
-            gerenciamentoContasToolStripMenuItem.Size = new Size(249, 22);
-            gerenciamentoContasToolStripMenuItem.Text = "Gerenciamento Contas";
             // 
             // gerenciamentoSaldosAnterioresToolStripMenuItem
             // 

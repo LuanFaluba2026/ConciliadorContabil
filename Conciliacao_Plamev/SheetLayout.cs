@@ -40,7 +40,7 @@ namespace Conciliacao_Plamev
             List<CodigoContas> contasCadastradas = BancoDeDados.GetContas().ToList();
             foreach (var conta in contasCadastradas)
             {
-                List<Movimento> movConta = BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov).Month == Form1.competencia.Month && x.codigoForn == conta.codigoForn).ToList();
+                List<Movimento> movConta = BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
 
                 //Passa pelos movimentos que contém débito e crédito no periodo (baseado no número da nota e valor), e encerra ele no banco de dados
                 //Atribuíndo a data de movimentação do débito na data de encerramento do crédito. Vice-versa
@@ -54,13 +54,14 @@ namespace Conciliacao_Plamev
                         var d = debitos.FirstOrDefault(x => x.notaRef == c.notaRef && Math.Abs(x.debito + c.credito) < 0.01);
                         if (d != null)
                         {
+                            Debug.WriteLine($"{c.codigoForn} // {c.historico} // {d.dataMov}");
                             BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, d.dataMov);
                             BancoDeDados.EncerrarMovimento(d.codigoForn, d.historico, d.dataMov);
                         }
                     }
                 }
                 //Gera o registro da conta somente se pelo menos um movimento ainda esteja sem encerrar.
-                List<Movimento> movContaAnteriores = BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
+                List<Movimento> movContaAnteriores = BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year < Form1.competencia.Year || (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month)) && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
                 if (movContaAnteriores.Any(x => x.codigoForn == conta.codigoForn))
                 {
                     ws.Cell(1 + linhasUsadas, "A").Value = "Conta:";
@@ -81,6 +82,7 @@ namespace Conciliacao_Plamev
                     linhasUsadas += alturaFixa;
                 }
 
+                movContaAnteriores = BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov) <= Form1.competencia && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
                 //Começa a escrever cada movimento do periodo/conta
                 foreach (var s in movContaAnteriores)
                 {
@@ -110,10 +112,10 @@ namespace Conciliacao_Plamev
                         }
                     }
                 }
-                List<Movimento> movContaPeriodo = BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov).Month == Form1.competencia.Month && x.codigoForn == conta.codigoForn).ToList();
+                List<Movimento> movContaPeriodo = BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month == Form1.competencia.Month) && x.codigoForn == conta.codigoForn).ToList();
                 foreach (var s in movContaPeriodo)
                 {
-                    Debug.WriteLine($"{s.historico} || {s.codigoForn} || {linhasUsadas}");
+                    //Debug.WriteLine($"{s.historico} || {s.codigoForn} || {linhasUsadas}");
                     if (String.IsNullOrEmpty(s.dataEncerramento))
                     {
                         linhasUsadas++;

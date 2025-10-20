@@ -62,6 +62,7 @@ namespace Conciliacao_Plamev
             catch (Exception ex)
             {
                 MessageBox.Show($"{ex.Message} || {ex.StackTrace}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
             this.Cursor = Cursors.Default;
@@ -106,7 +107,8 @@ namespace Conciliacao_Plamev
 
         private void importarSaldosAnterioresToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ImpSaldosAnteriores.ImportarSaldo(@"C:\Users\secun\Downloads\MOVIMENTACOES EM ABERTO.csv");
+            ImportarMovimentacao newWindow = new ImportarMovimentacao();
+            newWindow.ShowDialog();
         }
     }
 }

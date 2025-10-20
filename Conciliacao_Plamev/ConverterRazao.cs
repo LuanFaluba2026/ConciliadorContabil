@@ -90,6 +90,7 @@ namespace Conciliacao_Plamev
                     n = n.StartsWith("2025/") ? n.Substring(5) : n;
                     n = n.StartsWith("2025") ? n.Substring(4) : n;
                     n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
+                    n = n.Replace(".", "");
                     n = n.TrimStart('0');
                     //Debug.WriteLine($"{n} || {historico}");
                     return n;

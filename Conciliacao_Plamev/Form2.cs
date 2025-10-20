@@ -43,6 +43,18 @@ namespace Conciliacao_Plamev
                 dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 dataGridView1.Columns["historico"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 dataGridView1.ForeColor = Color.Gray;
+
+
+                //formatação
+                dataGridView1.Columns["dataMov"].DefaultCellStyle.Format = "dd/MM/yyy";
+                dataGridView1.Columns["dataEncerramento"].DefaultCellStyle.Format = "dd/MM/yyy";
+
+                dataGridView1.Columns["debito"].DefaultCellStyle.Format = "C2";
+                dataGridView1.Columns["debito"].DefaultCellStyle.FormatProvider = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+                dataGridView1.Columns["credito"].DefaultCellStyle.Format = "C2";
+                dataGridView1.Columns["credito"].DefaultCellStyle.FormatProvider = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+
+
                 for (int i = 0; i <= dataGridView1.Columns.Count - 1; i++)
                 {
                     dataGridView1.Columns[i].ReadOnly = true;
@@ -64,7 +76,6 @@ namespace Conciliacao_Plamev
                 mostrarEncerrados.Enabled = false;
 
                 EditarButton.Enabled = false;
-                SalvarButton.Enabled = true;
 
                 BotaoExcluir.Enabled = true;
                 BotaoAdicionar.Enabled = true;
@@ -84,7 +95,6 @@ namespace Conciliacao_Plamev
                 mostrarEncerrados.Enabled = true;
 
                 EditarButton.Enabled = true;
-                SalvarButton.Enabled = false;
 
                 BotaoExcluir.Enabled = false;
                 BotaoAdicionar.Enabled = false;
@@ -121,10 +131,6 @@ namespace Conciliacao_Plamev
         {
             isEditing = true;
         }
-        private void SalvarButton_Click(object sender, EventArgs e)
-        {
-            isEditing = false;
-        }
         private void CancelarButton_Click(object sender, EventArgs e)
         {
             isEditing = true;
@@ -141,17 +147,83 @@ namespace Conciliacao_Plamev
             {
                 if (dataGridView1.SelectedRows.Count == 0)
                     throw new Exception("Nenhuma linhas selecionada.");
-            
-                var confirmacao = MessageBox.Show("Certeza que deseja excluir o movimento selecionado? Não será possível reverter a alteração.", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
-                if(confirmacao == DialogResult.Yes)
-                {
-                    BancoDeDados.ExcluirMovimento(dataGridView1.SelectedRows[0].Cells["historico"].Value?.ToString() ?? "");
-                    MostrarMovimento();
-                }
 
-            }catch(Exception ex)
+                var confirmacao = MessageBox.Show("Certeza que deseja excluir o movimento selecionado? Não será possível reverter a alteração.", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                if (confirmacao == DialogResult.Yes)
+                {
+                    BancoDeDados.ExcluirMovimento((long)dataGridView1.SelectedRows[0].Cells["idx"].Value);
+                }
+                MostrarMovimento();
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BotaoAdicionar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                BancoDeDados.AddMovimento(new Movimento()
+                {
+                    codigoForn = textBox1.Text,
+                    dataMov = DateTime.Now.ToString("dd/MM/yyyy"),
+                });
+                MostrarMovimento();
+                for (int i = 1; i <= dataGridView1.Columns.Count - 1; i++)
+                {
+                    dataGridView1.Columns[i].ReadOnly = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void dataGridView1_RowValidated(object sender, DataGridViewCellEventArgs e)
+        {
+            try
+            {
+                var row = dataGridView1.Rows[e.RowIndex];
+                if (row.DataBoundItem is Movimento mov)
+                {
+                    if (!ValidarLinha(row, "dataEncerramento"))
+                    {
+                        throw new Exception("Preencha os campos obrigatórios.");
+                    }
+                    BancoDeDados.UpdateMovimento(mov, (long)row.Cells["idx"].Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private bool ValidarLinha(DataGridViewRow row, string colDataEnc)
+        {
+            foreach (DataGridViewCell cell in row.Cells)
+            {
+                if (cell.OwningColumn.Name == colDataEnc)
+                    continue;
+
+                if (cell.Value == null || string.IsNullOrEmpty(cell.Value.ToString()))
+                    return false;
+            }
+
+            return true;
+        }
+        //TORNAR VALOR DEBUTO NEGATIVO
+        private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dataGridView1.Columns[e.ColumnIndex].Name == "debito")
+            {
+                var cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                if(decimal.TryParse(cell.Value?.ToString(), out decimal valor))
+                {
+                    cell.Value = -Math.Abs(valor);
+                }
             }
         }
     }

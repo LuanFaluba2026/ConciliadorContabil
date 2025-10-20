@@ -37,8 +37,8 @@
             EditarButton = new Button();
             CancelarButton = new Button();
             mostrarEncerrados = new CheckBox();
-            button1 = new Button();
-            button2 = new Button();
+            BotaoAdicionar = new Button();
+            BotaoExcluir = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -71,11 +71,15 @@
             // consultaSaldo
             // 
             consultaSaldo.AutoSize = true;
-            consultaSaldo.Location = new Point(1030, 482);
+            consultaSaldo.Dock = DockStyle.Bottom;
+            consultaSaldo.Location = new Point(0, 494);
             consultaSaldo.Name = "consultaSaldo";
-            consultaSaldo.Size = new Size(96, 15);
+            consultaSaldo.Padding = new Padding(10, 0, 0, 10);
+            consultaSaldo.RightToLeft = RightToLeft.No;
+            consultaSaldo.Size = new Size(143, 25);
             consultaSaldo.TabIndex = 3;
-            consultaSaldo.Text = "Saldo em aberto:";
+            consultaSaldo.Text = "Saldo em aberto: R$0,00";
+            consultaSaldo.TextAlign = ContentAlignment.MiddleRight;
             // 
             // dataGridView1
             // 
@@ -89,6 +93,8 @@
             dataGridView1.Location = new Point(12, 117);
             dataGridView1.MultiSelect = false;
             dataGridView1.Name = "dataGridView1";
+            dataGridView1.RowHeadersVisible = false;
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.Size = new Size(1213, 362);
             dataGridView1.TabIndex = 4;
             // 
@@ -115,7 +121,6 @@
             // 
             // CancelarButton
             // 
-            CancelarButton.Enabled = false;
             CancelarButton.Location = new Point(1128, 70);
             CancelarButton.Name = "CancelarButton";
             CancelarButton.Size = new Size(97, 23);
@@ -135,35 +140,38 @@
             mostrarEncerrados.UseVisualStyleBackColor = true;
             mostrarEncerrados.CheckedChanged += mostrarEncerrados_CheckedChanged;
             // 
-            // button1
+            // BotaoAdicionar
             // 
-            button1.Font = new Font("Book Antiqua", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button1.Location = new Point(12, 485);
-            button1.Name = "button1";
-            button1.Size = new Size(30, 27);
-            button1.TabIndex = 9;
-            button1.Text = "+";
-            button1.TextAlign = ContentAlignment.TopCenter;
-            button1.UseVisualStyleBackColor = true;
+            BotaoAdicionar.Enabled = false;
+            BotaoAdicionar.Font = new Font("Book Antiqua", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            BotaoAdicionar.Location = new Point(1159, 485);
+            BotaoAdicionar.Name = "BotaoAdicionar";
+            BotaoAdicionar.Size = new Size(30, 27);
+            BotaoAdicionar.TabIndex = 9;
+            BotaoAdicionar.Text = "+";
+            BotaoAdicionar.TextAlign = ContentAlignment.TopCenter;
+            BotaoAdicionar.UseVisualStyleBackColor = true;
             // 
-            // button2
+            // BotaoExcluir
             // 
-            button2.Font = new Font("Book Antiqua", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button2.Location = new Point(48, 485);
-            button2.Name = "button2";
-            button2.Size = new Size(30, 27);
-            button2.TabIndex = 10;
-            button2.Text = "-";
-            button2.TextAlign = ContentAlignment.TopCenter;
-            button2.UseVisualStyleBackColor = true;
+            BotaoExcluir.Enabled = false;
+            BotaoExcluir.Font = new Font("Book Antiqua", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            BotaoExcluir.Location = new Point(1195, 485);
+            BotaoExcluir.Name = "BotaoExcluir";
+            BotaoExcluir.Size = new Size(30, 27);
+            BotaoExcluir.TabIndex = 10;
+            BotaoExcluir.Text = "-";
+            BotaoExcluir.TextAlign = ContentAlignment.TopCenter;
+            BotaoExcluir.UseVisualStyleBackColor = true;
+            BotaoExcluir.Click += BotaoExcluir_Click;
             // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1238, 519);
-            Controls.Add(button2);
-            Controls.Add(button1);
+            Controls.Add(BotaoExcluir);
+            Controls.Add(BotaoAdicionar);
             Controls.Add(mostrarEncerrados);
             Controls.Add(CancelarButton);
             Controls.Add(EditarButton);
@@ -193,7 +201,7 @@
         private Button EditarButton;
         private Button CancelarButton;
         private CheckBox mostrarEncerrados;
-        private Button button1;
-        private Button button2;
+        private Button BotaoAdicionar;
+        private Button BotaoExcluir;
     }
 }

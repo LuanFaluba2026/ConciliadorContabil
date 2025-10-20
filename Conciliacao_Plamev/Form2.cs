@@ -21,16 +21,28 @@ namespace Conciliacao_Plamev
 
         private void MostrarMovimento()
         {
-            CodigoContas contasCadastradas = BancoDeDados.GetContas().FirstOrDefault(x => x.codigoForn == textBox1.Text);
-            if (contasCadastradas != null)
+            CodigoContas conta = BancoDeDados.GetContas().FirstOrDefault(x => x.codigoForn == textBox1.Text);
+            if (conta != null)
             {
+                //Display fornecedor
+                consultaFornecedor.Text = $"Fornecedor: {conta.nomeForn}";
+
                 List<Movimento> movConta = mostrarEncerrados.Checked ?
                                                    BancoDeDados.GetMovimentos().Where(x => x.codigoForn == textBox1.Text).ToList() :
                                                    BancoDeDados.GetMovimentos().Where(x => x.codigoForn == textBox1.Text && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
+                double saldo = 0;
+                foreach (var s in movConta.Where(x => String.IsNullOrEmpty(x.dataEncerramento)))
+                {
+                    saldo += s.credito;
+                    saldo -= s.debito;
+                }
+                consultaSaldo.Text = $"Saldo em aberto: R${saldo.ToString("F2")}";
                 dataGridView1.DataSource = movConta.OrderByDescending(x => x.dataEncerramento).ToList();
+                dataGridView1.Columns["codigoForn"].Visible = false;
                 dataGridView1.AutoResizeColumns();
                 dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 dataGridView1.Columns["historico"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.ForeColor = Color.Gray;
                 for (int i = 0; i <= dataGridView1.Columns.Count - 1; i++)
                 {
                     dataGridView1.Columns[i].ReadOnly = true;
@@ -47,12 +59,17 @@ namespace Conciliacao_Plamev
         {
             if (isEditing)
             {
+
                 textBox1.Enabled = false;
                 mostrarEncerrados.Enabled = false;
 
                 EditarButton.Enabled = false;
                 SalvarButton.Enabled = true;
-                CancelarButton.Enabled = true;
+
+                BotaoExcluir.Enabled = true;
+                BotaoAdicionar.Enabled = true;
+
+                dataGridView1.ForeColor = Color.Black;
 
                 for (int i = 1; i <= dataGridView1.Columns.Count - 1; i++)
                 {
@@ -61,12 +78,18 @@ namespace Conciliacao_Plamev
             }
             else
             {
+                consultaFornecedor.Text = $"Fornecedor:";
+                consultaSaldo.Text = $"Saldo em aberto: R$0,00";
                 textBox1.Enabled = true;
                 mostrarEncerrados.Enabled = true;
 
                 EditarButton.Enabled = true;
                 SalvarButton.Enabled = false;
-                CancelarButton.Enabled = false;
+
+                BotaoExcluir.Enabled = false;
+                BotaoAdicionar.Enabled = false;
+
+                dataGridView1.ForeColor = Color.Gray;
 
                 for (int i = 0; i <= dataGridView1.Columns.Count - 1; i++)
                 {
@@ -104,11 +127,32 @@ namespace Conciliacao_Plamev
         }
         private void CancelarButton_Click(object sender, EventArgs e)
         {
+            isEditing = true;
             isEditing = false;
         }
         private void mostrarEncerrados_CheckedChanged(object sender, EventArgs e)
         {
             MostrarMovimento();
+        }
+
+        private void BotaoExcluir_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dataGridView1.SelectedRows.Count == 0)
+                    throw new Exception("Nenhuma linhas selecionada.");
+            
+                var confirmacao = MessageBox.Show("Certeza que deseja excluir o movimento selecionado? Não será possível reverter a alteração.", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                if(confirmacao == DialogResult.Yes)
+                {
+                    BancoDeDados.ExcluirMovimento(dataGridView1.SelectedRows[0].Cells["historico"].Value?.ToString() ?? "");
+                    MostrarMovimento();
+                }
+
+            }catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

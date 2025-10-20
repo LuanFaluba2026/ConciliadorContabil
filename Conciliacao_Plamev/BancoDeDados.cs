@@ -174,5 +174,21 @@ namespace Conciliacao_Plamev
                 throw new Exception(ex.Message);
             }
         }
+
+        public static void ExcluirMovimento(string historico)
+        {
+            try
+            {
+                using (var cmd = new SQLiteCommand(DbConnection()))
+                {
+                    cmd.CommandText = "DELETE FROM Movimento Where historico=@Historico";
+                    cmd.Parameters.AddWithValue("@Historico", historico);
+                    cmd.ExecuteNonQuery();
+                }
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

@@ -13,9 +13,14 @@ namespace Conciliacao_Plamev
     {
         private static SQLiteConnection? sqliteConnection;
 
+        public static string _empresa;
+        public static string empresa {
+            get { return Directory.GetFiles(@"c:\Data\").FirstOrDefault(x => x.Contains(_empresa, StringComparison.OrdinalIgnoreCase) && !x.Contains("BACKUP")) ?? ""; }
+            set { _empresa = value; }
+        }
         private static SQLiteConnection DbConnection()
         {
-            sqliteConnection = new SQLiteConnection("Data Source=c:\\Data\\BancoDeDados_Movimentação.sqlite; Version=3");
+            sqliteConnection = new SQLiteConnection($"Data Source={empresa}; Version=3");
             sqliteConnection.Open();
             return sqliteConnection;
         }
@@ -23,7 +28,20 @@ namespace Conciliacao_Plamev
         {
             try
             {
-                SQLiteConnection.CreateFile(@"c:\Data\BancoDeDados_Movimentação.sqlite");
+                if(!File.Exists(@"c:\Data\"+_empresa+".sqlite"))
+                    SQLiteConnection.CreateFile(@"c:\Data\"+_empresa+".sqlite");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        public static void ExcluirBancoSQlite(string empresa)
+        {
+            try
+            {
+                if (File.Exists(@"c:\Data\" + empresa + ".sqlite"))
+                    File.Delete(@"c:\Data\" + empresa + ".sqlite");
             }
             catch (Exception ex)
             {
@@ -36,9 +54,9 @@ namespace Conciliacao_Plamev
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS Movimento (idx INTEGER NOT NULL, codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, historico TEXT, valorDebito REAL, valorCredito REAL, numNota TEXT, dataEncerramento TEXT, PRIMARY KEY (codigoForn, historico));";
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS Movimento (idx INTEGER NOT NULL, codigoForn TEXT NOT NULL, dataMov TEXT NOT NULL, historico TEXT, valorDebito REAL, valorCredito REAL, numNota TEXT, dataEncerramento TEXT, PRIMARY KEY (dataMov, historico));";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS CadastroContas (codigo TEXT NOT NULL, contaAnalitica TEXT NOT NULL, nomeFornecedor TEXT NOT NULL, PRIMARY KEY(codigo));";
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS CadastroContas (codigo TEXT NOT NULL, contaAnalitica TEXT, nomeFornecedor TEXT NOT NULL, PRIMARY KEY(codigo));";
                     cmd.ExecuteNonQuery();
                 }
             }

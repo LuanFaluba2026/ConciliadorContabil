@@ -14,9 +14,12 @@ namespace Conciliacao_Plamev
 {
     public partial class Form2 : Form
     {
+        public static Form2 form2; 
         public Form2()
         {
             InitializeComponent();
+            this.ActiveControl = selecionarConta;
+            form2 = this;
         }
 
         private void MostrarMovimento()
@@ -34,7 +37,7 @@ namespace Conciliacao_Plamev
                 foreach (var s in movConta.Where(x => String.IsNullOrEmpty(x.dataEncerramento)))
                 {
                     saldo += s.credito;
-                    saldo -= s.debito;
+                    saldo += s.debito;
                 }
                 consultaSaldo.Text = $"Saldo em aberto: R${saldo.ToString("F2")}";
                 dataGridView1.DataSource = movConta.OrderByDescending(x => x.dataEncerramento).ToList();
@@ -42,7 +45,6 @@ namespace Conciliacao_Plamev
                 dataGridView1.AutoResizeColumns();
                 dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 dataGridView1.Columns["historico"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                dataGridView1.ForeColor = Color.Gray;
 
 
                 //formatação
@@ -79,6 +81,7 @@ namespace Conciliacao_Plamev
 
                 BotaoExcluir.Enabled = true;
                 BotaoAdicionar.Enabled = true;
+                DuplicarButton.Enabled = true;
 
                 dataGridView1.ForeColor = Color.Black;
 
@@ -98,6 +101,7 @@ namespace Conciliacao_Plamev
 
                 BotaoExcluir.Enabled = false;
                 BotaoAdicionar.Enabled = false;
+                DuplicarButton.Enabled = false;
 
                 dataGridView1.ForeColor = Color.Gray;
 
@@ -154,6 +158,10 @@ namespace Conciliacao_Plamev
                     BancoDeDados.ExcluirMovimento((long)dataGridView1.SelectedRows[0].Cells["idx"].Value);
                 }
                 MostrarMovimento();
+                for (int i = 1; i <= dataGridView1.Columns.Count - 1; i++)
+                {
+                    dataGridView1.Columns[i].ReadOnly = false;
+                }
             }
             catch (Exception ex)
             {
@@ -220,11 +228,58 @@ namespace Conciliacao_Plamev
             if (dataGridView1.Columns[e.ColumnIndex].Name == "debito")
             {
                 var cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
-                if(decimal.TryParse(cell.Value?.ToString(), out decimal valor))
+                if (decimal.TryParse(cell.Value?.ToString(), out decimal valor))
                 {
                     cell.Value = -Math.Abs(valor);
                 }
             }
+        }
+
+        private void DuplicarButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dataGridView1.SelectedRows.Count == 0)
+                    throw new Exception("Nenhuma linhas selecionada.");
+
+                List<Movimento> mov = BancoDeDados.GetMovimentos().Where(x => x.codigoForn == textBox1.Text).ToList();
+
+                Movimento newLine = mov.FirstOrDefault(x => x.idx == (long)dataGridView1.SelectedRows[0].Cells["idx"].Value);
+                if (newLine != null)
+                    BancoDeDados.AddMovimento(new Movimento()
+                    {
+                        codigoForn = newLine.codigoForn,
+                        dataMov = newLine.dataMov,
+                        historico = $"index-{newLine.historico}",
+                        credito = newLine.credito,
+                        debito = newLine.debito,
+                        notaRef = newLine.notaRef
+                    });
+                MostrarMovimento();
+                for (int i = 1; i <= dataGridView1.Columns.Count - 1; i++)
+                {
+                    dataGridView1.Columns[i].ReadOnly = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void selecionarConta_Click(object sender, EventArgs e)
+        {
+            RelatorioDeContas form = new();
+            var posBotao = selecionarConta.PointToScreen(Point.Empty);
+
+            form.StartPosition = FormStartPosition.Manual; // posição manual
+            form.Location = new System.Drawing.Point(posBotao.X, posBotao.Y);
+            form.ShowDialog();
+        }
+
+        public TextBox textBoxConta
+        {
+            get { return textBox1; }
         }
     }
 }

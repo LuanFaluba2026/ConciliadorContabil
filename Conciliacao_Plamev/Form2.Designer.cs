@@ -38,6 +38,8 @@
             mostrarEncerrados = new CheckBox();
             BotaoAdicionar = new Button();
             BotaoExcluir = new Button();
+            DuplicarButton = new Button();
+            selecionarConta = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -156,11 +158,35 @@
             BotaoExcluir.UseVisualStyleBackColor = true;
             BotaoExcluir.Click += BotaoExcluir_Click;
             // 
+            // DuplicarButton
+            // 
+            DuplicarButton.Enabled = false;
+            DuplicarButton.Font = new Font("Book Antiqua", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            DuplicarButton.Location = new Point(1064, 485);
+            DuplicarButton.Name = "DuplicarButton";
+            DuplicarButton.Size = new Size(89, 27);
+            DuplicarButton.TabIndex = 11;
+            DuplicarButton.Text = "Duplicar";
+            DuplicarButton.UseVisualStyleBackColor = true;
+            DuplicarButton.Click += DuplicarButton_Click;
+            // 
+            // selecionarConta
+            // 
+            selecionarConta.Location = new Point(176, 12);
+            selecionarConta.Name = "selecionarConta";
+            selecionarConta.Size = new Size(34, 23);
+            selecionarConta.TabIndex = 12;
+            selecionarConta.Text = "...";
+            selecionarConta.UseVisualStyleBackColor = true;
+            selecionarConta.Click += selecionarConta_Click;
+            // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1238, 519);
+            Controls.Add(selecionarConta);
+            Controls.Add(DuplicarButton);
             Controls.Add(BotaoExcluir);
             Controls.Add(BotaoAdicionar);
             Controls.Add(mostrarEncerrados);
@@ -193,5 +219,7 @@
         private CheckBox mostrarEncerrados;
         private Button BotaoAdicionar;
         private Button BotaoExcluir;
+        private Button DuplicarButton;
+        private Button selecionarConta;
     }
 }

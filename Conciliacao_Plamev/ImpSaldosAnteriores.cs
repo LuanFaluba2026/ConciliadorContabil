@@ -26,12 +26,9 @@ namespace Conciliacao_Plamev
                             dataMov = col[1],
                             notaRef = col[2],
                             historico = col[3],
-                            credito = double.Parse(col[4])
+                            debito = -Math.Abs(double.Parse(col[4])),
+                            credito = double.Parse(col[5])
                         });
-                    }
-                    else
-                    {
-                        throw new Exception($"Fornecedor não encontrado. Codigo: {col[0]}");
                     }
                 }
             }

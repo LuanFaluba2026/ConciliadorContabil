@@ -32,7 +32,7 @@ namespace Conciliacao_Plamev
         }
         private void GerarCsv(string path)
         {
-            File.WriteAllText(Path.Combine(path, "Importar Movimentos.csv"), "Codigo;Data;Nota Fiscal;Descricao;Valor Saldo");
+            File.WriteAllText(Path.Combine(path, "Importar Movimentos.csv"), "Codigo;Data;Nota Fiscal;Descricao;Debito;Credito");
             MessageBox.Show("Arquivo criado com sucesso!", "Sucesso!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 

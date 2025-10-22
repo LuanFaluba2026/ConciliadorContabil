@@ -22,8 +22,11 @@ namespace Conciliacao_Plamev
                 {
                     var ws = wb.Worksheet(1);
 
+                    Form1.Instance.SetMaxProgressBar(ws.RowsUsed().Count());
                     for (int i = 2; i <= ws.RowsUsed().Count(); i++)
                     {
+                        Form1.Instance.StepProgressBar();
+
                         //Atribuindo todos registros à variáveis.
                         var row = ws.Row(i);
                         string codigoFornecedor = row.Cell("D").Value.ToString();
@@ -62,6 +65,7 @@ namespace Conciliacao_Plamev
                         }
                     }
                 }
+                Form1.Instance.SetProgressBarValue(0);
             }
             catch(Exception ex)
             {
@@ -97,6 +101,30 @@ namespace Conciliacao_Plamev
                 }
             }
             return "";
+        }
+
+        public static void IniciarSubstituicao()
+        {
+            List<Movimento> mov = BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month == Form1.competencia.Month)).ToList();
+            List<Movimento> movEncerrados = BancoDeDados.GetMovimentos().Where(x => !String.IsNullOrEmpty(x.dataEncerramento) && (DateTime.Parse(x.dataEncerramento).Year == Form1.competencia.Year && DateTime.Parse(x.dataEncerramento).Month == Form1.competencia.Month)).ToList();
+
+            foreach(Movimento m in mov)
+            {
+                BancoDeDados.ExcluirMovimento(m.idx);
+            }
+            foreach(Movimento m in movEncerrados)
+            {
+                BancoDeDados.UpdateMovimento(new Movimento()
+                {
+                    dataMov = m.dataMov,
+                    historico = m.historico,
+                    debito = m.debito,
+                    credito = m.credito,
+                    notaRef = m.notaRef,
+                    dataEncerramento = null
+                }, m.idx);
+            }
+
         }
     }
 }

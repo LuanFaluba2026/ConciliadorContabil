@@ -38,9 +38,11 @@ namespace Conciliacao_Plamev
             ws.Column("H").Width = 24.71;
 
             List<CodigoContas> contasCadastradas = BancoDeDados.GetContas().ToList();
+            Form1.Instance.SetMaxProgressBar(BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month && String.IsNullOrEmpty(x.dataEncerramento)).Count());
             foreach (var conta in contasCadastradas)
             {
-                List<Movimento> movConta = BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
+                Form1.Instance.StepProgressBar();
+                List<Movimento> movConta = BancoDeDados.GetMovimentos().Where(x => x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
 
                 //Passa pelos movimentos que contém débito e crédito no periodo (baseado no número da nota e valor), e encerra ele no banco de dados
                 //Atribuíndo a data de movimentação do débito na data de encerramento do crédito. Vice-versa
@@ -137,12 +139,13 @@ namespace Conciliacao_Plamev
 
             }
             //totalizadors
-            /*ws.Cell(linhasUsadas + 2, "G").Style.Font.Bold = true;
-            ws.Cell(linhasUsadas + 2, "H").Style.Font.Bold = true;
-            ws.Cell(linhasUsadas + 2, "G").Value = "Total:";
-            ws.Cell(linhasUsadas + 2, "H").FormulaA1 = $"=SUM(H2:H{linhasUsadas})";*/
-
+            ws.Cell(linhasUsadas + 2, "F").Style.Font.Bold = true;
+            ws.Cell(linhasUsadas + 2, "G").Style.Font.Bold = true;
+            ws.Cell(linhasUsadas + 2, "F").Value = "Total:";
+            ws.Cell(linhasUsadas + 2, "G").FormulaA1 = $"=SUM(G2:G{linhasUsadas})";
             wb.SaveAs(path);
+
+            Form1.Instance.SetProgressBarValue(0);
         }
     }
 }

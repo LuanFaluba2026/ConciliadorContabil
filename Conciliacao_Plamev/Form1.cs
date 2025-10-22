@@ -7,23 +7,46 @@ namespace Conciliacao_Plamev
 {
     public partial class Form1 : Form
     {
+        public static Form1 Instance;
         public Form1()
         {
             InitializeComponent();
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            Instance = this;
 
+            ListagemEmpresas form = new();
+            form.ShowDialog(this);
+           
             if (!Directory.Exists(@"c:\Data"))
             {
                 Directory.CreateDirectory(@"c:\Data");
-                BancoDeDados.CriarBancoSQlite();
             }
+            progressBar1.Step = 1;
+
         }
+        public void MudarEmpresa()
+        { 
+            displayEmpresa.Text = BancoDeDados._empresa;
+        }
+        public void SetProgressBarValue(int value)
+        {
+            progressBar1.Invoke((Action)(() => progressBar1.Maximum = value));
+        }
+        public void SetMaxProgressBar(int maxValue)
+        {
+            progressBar1.Invoke((Action)(() => progressBar1.Maximum = maxValue));
+        }
+        public void StepProgressBar()
+        {
+            progressBar1.Invoke((Action)(() => progressBar1.PerformStep()));
+        }
+
+
         public static string razaoPath;
         private void OpenFileButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new();
             ofd.Title = "Selecione uma planilha";
-            ofd.Filter = "Planilhas Excel (*.xls;*.xlsx)|*.xls;*xlsx|Todos os Arquivos (*.*)|*.*";
+            ofd.Filter = "Planilhas Excel (*.csv;*.xlsx)|*.csv;*xlsx|Todos os Arquivos (*.*)|*.*";
             ofd.Multiselect = false;
             if (ofd.ShowDialog() == DialogResult.OK)
             {
@@ -42,26 +65,81 @@ namespace Conciliacao_Plamev
 
             try
             {
-                if (!String.IsNullOrEmpty(competenciaTextBox.Text) && !String.IsNullOrEmpty(razaoPath))
+                if (ImportarMovimentoCheck.Checked)
                 {
-                    sw.Start();
-                    logBox.AppendText("\r\nIniciando Processamento...\r\n");
-                    await Task.Run(() =>
+                    if (!String.IsNullOrEmpty(competenciaTextBox.Text) && !String.IsNullOrEmpty(razaoPath))
                     {
-                        ConverterRazao.Conversao();
-                        SheetLayout.CreateSheet();
-                    });
-                    sw.Stop();
-                    logBox.AppendText($"\r\n Processamento Concluído ! ({sw.Elapsed.ToString(@"hh\:mm\:ss")})");
+                        sw.Start();
+                        logBox.AppendText("\r\nIniciando Processamento...\r\n");
+                        if (SubstituirButton.Checked)
+                        {
+                            var dlg = MessageBox.Show("Ao processar, todos os lançamentos dessa competência serão substituídos, deseja continuar?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                            if (dlg == DialogResult.Yes)
+                            {
+                                if (File.Exists($@"C:\Data\{BancoDeDados._empresa}_BACKUP.sqlite"))
+                                    File.Delete($@"C:\Data\{BancoDeDados._empresa}_BACKUP.sqlite");
+                                File.Copy($@"C:\Data\{BancoDeDados._empresa}.sqlite", $@"C:\Data\{BancoDeDados._empresa}_BACKUP.sqlite");
+                                ConverterRazao.IniciarSubstituicao();
+
+                            }
+                            else
+                            {
+                                throw new Exception("Processamento cancelado");
+                            }
+                        }
+
+                        await Task.Run(() =>
+                        {
+                            if(Path.GetExtension(razaoPath) == ".csv")
+                            {
+                                ConverterRazaoSenior.Conversao();
+                                SheetLayout.CreateSheet();
+                            }
+                            else
+                            {
+                                ConverterRazao.Conversao();
+                                SheetLayout.CreateSheet();
+                            }
+                        });
+                        sw.Stop();
+                        if (SubstituirButton.Checked)
+                            MessageBox.Show("Foi gerado um BackUp do banco de dados anterior em \"C:\\Data\\BancoDeDados_Movimentação_BACKUP.sqlite\"", "Confirmação", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        logBox.AppendText($"\r\n Processamento Concluído! ({sw.Elapsed.ToString(@"hh\:mm\:ss")})");
+                    }
+                    else
+                    {
+                        this.Cursor = Cursors.Default;
+                        ProcessButton.Enabled = true;
+                        throw new Exception("Informações Inválidas");
+                    }
                 }
                 else
                 {
-                    throw new Exception("Informações Inválidas");
+                    if (!String.IsNullOrEmpty(competenciaTextBox.Text))
+                    {
+                        sw.Start();
+                        logBox.AppendText("\r\nIniciando Processamento...\r\n");
+                        await Task.Run(() =>
+                        {
+                            SheetLayout.CreateSheet();
+                        });
+                        sw.Stop();
+                        logBox.AppendText($"\r\n Processamento Concluído ! ({sw.Elapsed.ToString(@"hh\:mm\:ss")})");
+                    }
+                    else
+                    {
+                        this.Cursor = Cursors.Default;
+                        ProcessButton.Enabled = true;
+                        throw new Exception("Informe a competência.");
+                    }
                 }
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"{ex.Message} || {ex.StackTrace}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Cursor = Cursors.Default;
+                ProcessButton.Enabled = true;
                 return;
             }
 
@@ -109,6 +187,32 @@ namespace Conciliacao_Plamev
         {
             ImportarMovimentacao newWindow = new ImportarMovimentacao();
             newWindow.ShowDialog();
+        }
+
+        private void ImportarMovimentoCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!ImportarMovimentoCheck.Checked)
+            {
+                OpenFileButton.Enabled = false;
+                pathTextBox.Enabled = false;
+                SubstituirButton.Enabled = false;
+            }
+            else
+            {
+                OpenFileButton.Enabled = true;
+                pathTextBox.Enabled = true;
+                SubstituirButton.Enabled = true;
+            }
+        }
+
+        private void SelecionarEmpresaButton_Click(object sender, EventArgs e)
+        {
+            ListagemEmpresas form = new();
+            var posBotao = SelecionarEmpresaButton.PointToScreen(Point.Empty);
+
+            form.StartPosition = FormStartPosition.Manual; // posição manual
+            form.Location = new System.Drawing.Point(posBotao.X, posBotao.Y);
+            form.ShowDialog();
         }
     }
 }

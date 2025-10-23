@@ -63,7 +63,8 @@ namespace Conciliacao_Plamev
                 "NF",
                 "REF.",
                 "VR.NF",
-                "NF/Titulo"
+                "NF/Titulo",
+                "Titulo"
             };
             foreach (var c in possiveisCombinacoes)
             {

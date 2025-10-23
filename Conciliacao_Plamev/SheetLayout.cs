@@ -16,7 +16,7 @@ namespace Conciliacao_Plamev
     public class SheetLayout
     {
 
-        static string path = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads", "Fornecedores.xlsx"));
+        static string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads");
         public static void CreateSheet()
         {
             XLWorkbook wb = new XLWorkbook();
@@ -39,7 +39,7 @@ namespace Conciliacao_Plamev
 
             List<CodigoContas> contasCadastradas = BancoDeDados.GetContas().ToList();
             Form1.Instance.SetMaxProgressBar(BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month && String.IsNullOrEmpty(x.dataEncerramento)).Count());
-            foreach (var conta in contasCadastradas)
+            foreach (var conta in contasCadastradas.OrderBy(x => int.Parse(x.codigoForn)))
             {
                 Form1.Instance.StepProgressBar();
                 List<Movimento> movConta = BancoDeDados.GetMovimentos().Where(x => x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
@@ -53,12 +53,35 @@ namespace Conciliacao_Plamev
 
                     foreach (var c in creditos)
                     {
-                        var d = debitos.FirstOrDefault(x => x.notaRef == c.notaRef && Math.Abs(x.debito + c.credito) < 0.01);
-                        if (d != null)
+                        double valorCredito = Math.Abs(c.credito);
+                        var combinacoes = new List<List<Movimento>>();
+
+                        int n = debitos.Count;
+                        for(int i = 1; i < (1 << n); i++)
                         {
-                            Debug.WriteLine($"{c.codigoForn} // {c.historico} // {d.dataMov}");
-                            BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, d.dataMov);
-                            BancoDeDados.EncerrarMovimento(d.codigoForn, d.historico, d.dataMov);
+                            var subset = new List<Movimento>();
+                            double soma = 0;
+                            for(int j = 0; j < n; j++)
+                            {
+                                if((i & (1 << j)) != 0)
+                                {
+                                    subset.Add(debitos[j]);
+                                    soma += Math.Abs(debitos[j].debito);
+                                }
+                            }
+                            if(Math.Abs(soma - valorCredito) < 0.01)
+                                combinacoes.Add(subset);
+                        }
+
+                        if(combinacoes.Any())
+                        {
+                            var combinacaoCorreta = combinacoes.First();
+                            Debug.WriteLine($"Credito {c.notaRef} fechado com {combinacaoCorreta.Count} debitos.");
+                            foreach(var d in combinacaoCorreta)
+                            {
+                                BancoDeDados.EncerrarMovimento(d.codigoForn, d.historico, d.dataMov);
+                            }
+                            BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, combinacaoCorreta.Last().dataMov);
                         }
                     }
                 }
@@ -86,7 +109,7 @@ namespace Conciliacao_Plamev
 
                 movContaAnteriores = BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov) <= Form1.competencia && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
                 //Começa a escrever cada movimento do periodo/conta
-                foreach (var s in movContaAnteriores)
+                foreach (var s in movContaAnteriores.OrderBy(x => DateTime.Parse(x.dataMov)))
                 {
                     //Condição: Se no movimento ainda não houver data de encerramento, ele será gerado.
                     //Se o mês da movimentação for o mesmo que a da competencia, ele será gerado no campo de saldos do período.
@@ -115,7 +138,7 @@ namespace Conciliacao_Plamev
                     }
                 }
                 List<Movimento> movContaPeriodo = BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month == Form1.competencia.Month) && x.codigoForn == conta.codigoForn).ToList();
-                foreach (var s in movContaPeriodo)
+                foreach (var s in movContaPeriodo.OrderBy(x => DateTime.Parse(x.dataMov)))
                 {
                     //Debug.WriteLine($"{s.historico} || {s.codigoForn} || {linhasUsadas}");
                     if (String.IsNullOrEmpty(s.dataEncerramento))
@@ -143,7 +166,7 @@ namespace Conciliacao_Plamev
             ws.Cell(linhasUsadas + 2, "G").Style.Font.Bold = true;
             ws.Cell(linhasUsadas + 2, "F").Value = "Total:";
             ws.Cell(linhasUsadas + 2, "G").FormulaA1 = $"=SUM(G2:G{linhasUsadas})";
-            wb.SaveAs(path);
+            wb.SaveAs(Path.Combine(path, $"Fornecedores-{DateTime.Now.ToString("dd-MM-yy_HH-mm-ss")}.xlsx"));
 
             Form1.Instance.SetProgressBarValue(0);
         }

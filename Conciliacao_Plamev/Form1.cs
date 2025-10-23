@@ -15,7 +15,7 @@ namespace Conciliacao_Plamev
 
             ListagemEmpresas form = new();
             form.ShowDialog(this);
-           
+
             if (!Directory.Exists(@"c:\Data"))
             {
                 Directory.CreateDirectory(@"c:\Data");
@@ -24,7 +24,7 @@ namespace Conciliacao_Plamev
 
         }
         public void MudarEmpresa()
-        { 
+        {
             displayEmpresa.Text = BancoDeDados._empresa;
         }
         public void SetProgressBarValue(int value)
@@ -76,9 +76,10 @@ namespace Conciliacao_Plamev
                             var dlg = MessageBox.Show("Ao processar, todos os lançamentos dessa competência serão substituídos, deseja continuar?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                             if (dlg == DialogResult.Yes)
                             {
-                                if (File.Exists($@"C:\Data\{BancoDeDados._empresa}_BACKUP.sqlite"))
-                                    File.Delete($@"C:\Data\{BancoDeDados._empresa}_BACKUP.sqlite");
-                                File.Copy($@"C:\Data\{BancoDeDados._empresa}.sqlite", $@"C:\Data\{BancoDeDados._empresa}_BACKUP.sqlite");
+                                if (!Directory.Exists(@"C:\Data\Backup\"))
+                                    Directory.CreateDirectory(@"C:\Data\Backup\");
+
+                                File.Copy($@"C:\Data\{BancoDeDados._empresa}.sqlite", $@"C:\Data\Backup\{BancoDeDados._empresa}_BACKUP_{DateTime.Now.ToString("dd-MM-yyyy-HH.mm.ss")}.sqlite");
                                 ConverterRazao.IniciarSubstituicao();
 
                             }
@@ -90,7 +91,7 @@ namespace Conciliacao_Plamev
 
                         await Task.Run(() =>
                         {
-                            if(Path.GetExtension(razaoPath) == ".csv")
+                            if (Path.GetExtension(razaoPath) == ".csv")
                             {
                                 ConverterRazaoSenior.Conversao();
                                 SheetLayout.CreateSheet();
@@ -212,6 +213,12 @@ namespace Conciliacao_Plamev
 
             form.StartPosition = FormStartPosition.Manual; // posição manual
             form.Location = new System.Drawing.Point(posBotao.X, posBotao.Y);
+            form.ShowDialog();
+        }
+
+        private void gerenciamentoContasCadastradasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GerenciamentoContasCadastradas form = new();
             form.ShowDialog();
         }
     }

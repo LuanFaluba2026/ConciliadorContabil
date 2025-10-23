@@ -15,6 +15,7 @@ namespace Conciliacao_Plamev
             {
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 string[] lines = File.ReadAllLines(path, Encoding.GetEncoding("Windows-1252"));
+                var naoEncontrados = new List<string>();
                 foreach (string line in lines.Skip(1))
                 {
                     string[] col = line.Split(";");
@@ -30,7 +31,19 @@ namespace Conciliacao_Plamev
                             credito = double.Parse(col[5])
                         });
                     }
+                    else
+                    {
+                        if(!naoEncontrados.Any(x => x.Contains(col[0])))
+                            naoEncontrados.Add($"Conta - {col[0]} Descrição - {col[3]}");
+                    }
                 }
+                SaveFileDialog sfd = new();
+                sfd.FileName = "log-NãoEcontrados.txt";
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllLines(sfd.FileName, naoEncontrados);
+                }
+                MessageBox.Show("Processamento Concluído");
             }
             catch (Exception ex)
             {

@@ -37,6 +37,7 @@
             // 
             // empresasListBox
             // 
+            empresasListBox.BackColor = SystemColors.HighlightText;
             empresasListBox.FormattingEnabled = true;
             empresasListBox.ItemHeight = 15;
             empresasListBox.Location = new Point(12, 35);

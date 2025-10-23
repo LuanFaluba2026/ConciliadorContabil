@@ -107,6 +107,22 @@ namespace Conciliacao_Plamev
                 MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        public static void RemoveConta(string codigoConta)
+        {
+            try
+            {
+                using (var cmd = DbConnection().CreateCommand())
+                {
+                    cmd.CommandText = "DELETE FROM CadastroContas WHERE codigo=@Codigo";
+                    cmd.Parameters.AddWithValue("@Codigo", codigoConta);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         public static void EncerrarMovimento(string codigo, string historico, string data)
         {
@@ -192,7 +208,7 @@ namespace Conciliacao_Plamev
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                throw new Exception(ex.Message);
+                return null;
             }
         }
 

@@ -40,6 +40,7 @@
             SubstituirButton = new CheckBox();
             cadastrosToolStripMenuItem = new ToolStripMenuItem();
             gerenciamentoSaldosAnterioresToolStripMenuItem = new ToolStripMenuItem();
+            gerenciamentoContasCadastradasToolStripMenuItem = new ToolStripMenuItem();
             importaçãoToolStripMenuItem = new ToolStripMenuItem();
             importarSaldosAnterioresToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1 = new MenuStrip();
@@ -142,7 +143,7 @@
             // cadastrosToolStripMenuItem
             // 
             cadastrosToolStripMenuItem.BackColor = SystemColors.ButtonHighlight;
-            cadastrosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { gerenciamentoSaldosAnterioresToolStripMenuItem });
+            cadastrosToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { gerenciamentoSaldosAnterioresToolStripMenuItem, gerenciamentoContasCadastradasToolStripMenuItem });
             cadastrosToolStripMenuItem.Name = "cadastrosToolStripMenuItem";
             cadastrosToolStripMenuItem.Size = new Size(71, 20);
             cadastrosToolStripMenuItem.Text = "Cadastros";
@@ -150,9 +151,16 @@
             // gerenciamentoSaldosAnterioresToolStripMenuItem
             // 
             gerenciamentoSaldosAnterioresToolStripMenuItem.Name = "gerenciamentoSaldosAnterioresToolStripMenuItem";
-            gerenciamentoSaldosAnterioresToolStripMenuItem.Size = new Size(249, 22);
+            gerenciamentoSaldosAnterioresToolStripMenuItem.Size = new Size(262, 22);
             gerenciamentoSaldosAnterioresToolStripMenuItem.Text = "Gerenciamento Saldos Anteriores";
             gerenciamentoSaldosAnterioresToolStripMenuItem.Click += gerenciamentoSaldosAnterioresToolStripMenuItem_Click;
+            // 
+            // gerenciamentoContasCadastradasToolStripMenuItem
+            // 
+            gerenciamentoContasCadastradasToolStripMenuItem.Name = "gerenciamentoContasCadastradasToolStripMenuItem";
+            gerenciamentoContasCadastradasToolStripMenuItem.Size = new Size(262, 22);
+            gerenciamentoContasCadastradasToolStripMenuItem.Text = "Gerenciamento Contas Cadastradas";
+            gerenciamentoContasCadastradasToolStripMenuItem.Click += gerenciamentoContasCadastradasToolStripMenuItem_Click;
             // 
             // importaçãoToolStripMenuItem
             // 
@@ -247,5 +255,6 @@
         private MenuStrip menuStrip1;
         private Button SelecionarEmpresaButton;
         private Label displayEmpresa;
+        private ToolStripMenuItem gerenciamentoContasCadastradasToolStripMenuItem;
     }
 }

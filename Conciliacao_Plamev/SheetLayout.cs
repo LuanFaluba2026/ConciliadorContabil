@@ -119,7 +119,7 @@ namespace Conciliacao_Plamev
                     {
                         DateTime dataToleravel = Form1.competencia.AddDays(-1);
                         DateTime dataMov = DateTime.Parse(s.dataMov);
-                        if (dataMov < dataToleravel)
+                        if (dataMov <= dataToleravel)
                         {
                             linhasUsadas++;
                             var row = ws.Row(linhasUsadas - alturaFixa + 2).InsertRowsAbove(1);

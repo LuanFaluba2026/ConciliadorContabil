@@ -8,6 +8,7 @@ namespace Conciliacao_Plamev
     public partial class Form1 : Form
     {
         public static Form1 Instance;
+        public static string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Data");
         public Form1()
         {
             InitializeComponent();
@@ -16,9 +17,9 @@ namespace Conciliacao_Plamev
             ListagemEmpresas form = new();
             form.ShowDialog(this);
 
-            if (!Directory.Exists(@"c:\Data"))
+            if (!Directory.Exists(dbPath))
             {
-                Directory.CreateDirectory(@"c:\Data");
+                Directory.CreateDirectory(dbPath);
             }
             progressBar1.Step = 1;
 

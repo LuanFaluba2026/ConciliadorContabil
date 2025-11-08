@@ -19,13 +19,17 @@ namespace Conciliacao_Plamev
         public ListagemEmpresas()
         {
             InitializeComponent();
+            if (!Directory.Exists(Form1.dbPath))
+            {
+                Directory.CreateDirectory(Form1.dbPath);
+            }
             GerenciarEmpresas();
             ListarEmpresas(bancos);
         }
         public void GerenciarEmpresas()
         {
             bancos.Clear();
-            foreach (var file in Directory.GetFiles(@"c:\Data\").Where(x => !x.Contains("BACKUP", StringComparison.OrdinalIgnoreCase)))
+            foreach (var file in Directory.GetFiles(Form1.dbPath).Where(x => !x.Contains("BACKUP", StringComparison.OrdinalIgnoreCase)))
             {
                 bancos.Add(Path.GetFileNameWithoutExtension(file));
             }
@@ -64,7 +68,7 @@ namespace Conciliacao_Plamev
         {
             if(empresasListBox.SelectedItems != null)
             {
-                string file = Path.GetFileNameWithoutExtension(Directory.GetFiles(@"c:\Data\").FirstOrDefault(x => x.Contains(empresasListBox.SelectedItem.ToString())));
+                string file = Path.GetFileNameWithoutExtension(Directory.GetFiles(Form1.dbPath).FirstOrDefault(x => x.Contains(empresasListBox.SelectedItem.ToString())));
                 BancoDeDados.ExcluirBancoSQlite(file);
                 GerenciarEmpresas();
                 ListarEmpresas(bancos);

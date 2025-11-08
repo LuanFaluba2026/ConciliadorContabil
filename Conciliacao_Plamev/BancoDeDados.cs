@@ -15,7 +15,7 @@ namespace Conciliacao_Plamev
 
         public static string _empresa;
         public static string empresa {
-            get { return Directory.GetFiles(@"c:\Data\").FirstOrDefault(x => x.Contains(_empresa, StringComparison.OrdinalIgnoreCase) && !x.Contains("BACKUP")) ?? ""; }
+            get { return Directory.GetFiles(Form1.dbPath).FirstOrDefault(x => x.Contains(_empresa, StringComparison.OrdinalIgnoreCase) && !x.Contains("BACKUP")) ?? ""; }
             set { _empresa = value; }
         }
         private static SQLiteConnection DbConnection()
@@ -28,8 +28,9 @@ namespace Conciliacao_Plamev
         {
             try
             {
-                if(!File.Exists(@"c:\Data\"+_empresa+".sqlite"))
-                    SQLiteConnection.CreateFile(@"c:\Data\"+_empresa+".sqlite");
+                string combinedPath = Path.Combine(Form1.dbPath, _empresa + ".sqlite");
+                if (!File.Exists(combinedPath))
+                    SQLiteConnection.CreateFile(combinedPath);
             }
             catch (Exception ex)
             {
@@ -40,8 +41,9 @@ namespace Conciliacao_Plamev
         {
             try
             {
-                if (File.Exists(@"c:\Data\" + empresa + ".sqlite"))
-                    File.Delete(@"c:\Data\" + empresa + ".sqlite");
+                string combinedPath = Path.Combine(Form1.dbPath, empresa + ".sqlite");
+                if (File.Exists(combinedPath))
+                    File.Delete(combinedPath);
             }
             catch (Exception ex)
             {

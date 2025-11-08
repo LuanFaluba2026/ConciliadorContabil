@@ -63,6 +63,7 @@ namespace Conciliacao_Plamev
                 "NF",
                 "REF.",
                 "VR.NF",
+                "Vlr.NF",
                 "NF/Titulo",
                 "Titulo"
             };

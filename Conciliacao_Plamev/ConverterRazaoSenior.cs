@@ -79,6 +79,13 @@ namespace Conciliacao_Plamev
                     n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
                     n = n.Replace(".", "");
                     n = n.TrimStart('0');
+
+                    if(n.Contains('/'))
+                    {
+                        int slashIndex = n.IndexOf('/');
+                        n = n.Substring(0, slashIndex);
+                    }
+
                     //Debug.WriteLine($"{n} || {historico}");
                     return n;
                 }

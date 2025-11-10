@@ -77,10 +77,11 @@ namespace Conciliacao_Plamev
                             var dlg = MessageBox.Show("Ao processar, todos os lançamentos dessa competência serão substituídos, deseja continuar?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                             if (dlg == DialogResult.Yes)
                             {
-                                if (!Directory.Exists(@"C:\Data\Backup\"))
-                                    Directory.CreateDirectory(@"C:\Data\Backup\");
+                                Directory.CreateDirectory(dbPath);
+                                Directory.CreateDirectory(dbPath + @"\Backup");
 
-                                File.Copy($@"C:\Data\{BancoDeDados._empresa}.sqlite", $@"C:\Data\Backup\{BancoDeDados._empresa}_BACKUP_{DateTime.Now.ToString("dd-MM-yyyy-HH.mm.ss")}.sqlite");
+                                File.Copy($@"{dbPath}\{BancoDeDados._empresa}.sqlite", $@"{dbPath}\Backup\{BancoDeDados._empresa}_BACKUP_{DateTime.Now.ToString("dd-MM-yyyy-HH.mm.ss")}.sqlite");
+
                                 ConverterRazao.IniciarSubstituicao();
 
                             }

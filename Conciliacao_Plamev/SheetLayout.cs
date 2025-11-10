@@ -84,6 +84,39 @@ namespace Conciliacao_Plamev
                             BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, combinacaoCorreta.Last().dataMov);
                         }
                     }
+                    // --- Fechar débitos com créditos ---
+                    foreach (var d in debitos)
+                    {
+                        double valorDebito = Math.Abs(d.debito);
+                        var combinacoes = new List<List<Movimento>>();
+
+                        int n = creditos.Count;
+                        for (int i = 1; i < (1 << n); i++)
+                        {
+                            var subset = new List<Movimento>();
+                            double soma = 0;
+                            for (int j = 0; j < n; j++)
+                            {
+                                if ((i & (1 << j)) != 0)
+                                {
+                                    subset.Add(creditos[j]);
+                                    soma += Math.Abs(creditos[j].credito);
+                                }
+                            }
+                            if (Math.Abs(soma - valorDebito) < 0.01)
+                                combinacoes.Add(subset);
+                        }
+
+                        if (combinacoes.Any())
+                        {
+                            var combinacaoCorreta = combinacoes.First();
+                            Debug.WriteLine($"Debito {d.notaRef} fechado com {combinacaoCorreta.Count} creditos.");
+                            foreach (var c in combinacaoCorreta)
+                                BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, c.dataMov);
+
+                            BancoDeDados.EncerrarMovimento(d.codigoForn, d.historico, combinacaoCorreta.Last().dataMov);
+                        }
+                    }
                 }
                 //Gera o registro da conta somente se pelo menos um movimento ainda esteja sem encerrar.
                 List<Movimento> movContaAnteriores = BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year < Form1.competencia.Year || (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month)) && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();

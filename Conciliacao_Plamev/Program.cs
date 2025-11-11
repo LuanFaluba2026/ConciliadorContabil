@@ -6,6 +6,24 @@ namespace Conciliacao_Plamev
 {
     internal static class Program
     {
+
+        public static string ClienteFornecedor()
+        {
+            string dbName = Path.GetFileName(Path.Combine(Form1.dbPath, BancoDeDados._empresa) + ".sqlite");
+            if (dbName.Contains("_Fornecedor"))
+            {
+                return "Fornecedor";
+            }
+            else if (dbName.Contains("_Cliente"))
+            {
+                return "Cliente";
+            }
+            else
+            {
+                return "invalidName";
+            }
+            
+        }
         [STAThread]
         static void Main()
         {

@@ -51,71 +51,54 @@ namespace Conciliacao_Plamev
                     var creditos = grupo.Where(x => x.credito > 0).ToList();
                     var debitos = grupo.Where(x => x.debito < 0).ToList();
 
-                    foreach (var c in creditos)
+                    if(Program.ClienteFornecedor() == "Fornecedor")
                     {
-                        double valorCredito = Math.Abs(c.credito);
-                        var combinacoes = new List<List<Movimento>>();
-
-                        int n = debitos.Count;
-                        for(int i = 1; i < (1 << n); i++)
+                        double somaDeb = 0;
+                        List<Movimento> movDebAtual = new();
+                        foreach (var d in debitos)
                         {
-                            var subset = new List<Movimento>();
-                            double soma = 0;
-                            for(int j = 0; j < n; j++)
+                            somaDeb += d.debito;
+                            movDebAtual.Add(d);
+                        }
+                        foreach (var c in creditos)
+                        {
+                            if(movDebAtual.Count > 0)
                             {
-                                if((i & (1 << j)) != 0)
+                                if (Math.Abs(c.credito + somaDeb) < 0.1 && c.notaRef == movDebAtual[0].notaRef)
                                 {
-                                    subset.Add(debitos[j]);
-                                    soma += Math.Abs(debitos[j].debito);
+                                    BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, c.dataMov);
+                                    foreach(var mov in movDebAtual)
+                                        BancoDeDados.EncerrarMovimento(mov.codigoForn, mov.historico, c.dataMov);
                                 }
                             }
-                            if(Math.Abs(soma - valorCredito) < 0.01)
-                                combinacoes.Add(subset);
-                        }
-
-                        if(combinacoes.Any())
-                        {
-                            var combinacaoCorreta = combinacoes.First();
-                            Debug.WriteLine($"Credito {c.notaRef} fechado com {combinacaoCorreta.Count} debitos.");
-                            foreach(var d in combinacaoCorreta)
-                            {
-                                BancoDeDados.EncerrarMovimento(d.codigoForn, d.historico, d.dataMov);
-                            }
-                            BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, combinacaoCorreta.Last().dataMov);
                         }
                     }
-                    // --- Fechar débitos com créditos ---
-                    foreach (var d in debitos)
+                    else if (Program.ClienteFornecedor() == "Cliente")
                     {
-                        double valorDebito = Math.Abs(d.debito);
-                        var combinacoes = new List<List<Movimento>>();
-
-                        int n = creditos.Count;
-                        for (int i = 1; i < (1 << n); i++)
+                        double somaCred = 0;
+                        List<Movimento> movCredAtual = new();
+                        foreach (var c in creditos)
                         {
-                            var subset = new List<Movimento>();
-                            double soma = 0;
-                            for (int j = 0; j < n; j++)
+                            somaCred += c.credito;
+                            movCredAtual.Add(c);
+                        }
+                        foreach (var d in debitos)
+                        {
+                            if (movCredAtual.Count > 0)
                             {
-                                if ((i & (1 << j)) != 0)
+                                if (Math.Abs(d.debito + somaCred) < 0.1 && d.notaRef == movCredAtual[0].notaRef)
                                 {
-                                    subset.Add(creditos[j]);
-                                    soma += Math.Abs(creditos[j].credito);
+                                    BancoDeDados.EncerrarMovimento(d.codigoForn, d.historico, d.dataMov);
+                                    foreach (var mov in movCredAtual)
+                                        BancoDeDados.EncerrarMovimento(mov.codigoForn, mov.historico, d.dataMov);
                                 }
                             }
-                            if (Math.Abs(soma - valorDebito) < 0.01)
-                                combinacoes.Add(subset);
                         }
-
-                        if (combinacoes.Any())
-                        {
-                            var combinacaoCorreta = combinacoes.First();
-                            Debug.WriteLine($"Debito {d.notaRef} fechado com {combinacaoCorreta.Count} creditos.");
-                            foreach (var c in combinacaoCorreta)
-                                BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, c.dataMov);
-
-                            BancoDeDados.EncerrarMovimento(d.codigoForn, d.historico, combinacaoCorreta.Last().dataMov);
-                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nome do Banco de Dados inválido.");
+                        return;
                     }
                 }
                 //Gera o registro da conta somente se pelo menos um movimento ainda esteja sem encerrar.

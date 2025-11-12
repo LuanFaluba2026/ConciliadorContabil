@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
+﻿using Conciliacao_Plamev.Scripts;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -55,19 +56,9 @@ namespace Conciliacao_Plamev
         private void AddButton_Click(object sender, EventArgs e)
         {
             AddBanco form = new();
-            var posBotao = AddButton.PointToScreen(Point.Empty);
-
-            form.StartPosition = FormStartPosition.Manual; // posição manual
-            form.Location = new System.Drawing.Point(posBotao.X, posBotao.Y);
             form.ShowDialog();
-
-            /*if (!String.IsNullOrEmpty(val))
-            {
-                BancoDeDados._empresa = val.ToUpper().Replace(" ", "_");
-                BancoDeDados.CriarBancoSQlite();
-                GerenciarEmpresas();
-                ListarEmpresas(bancos);
-            }*/
+            GerenciarEmpresas();
+            ListarEmpresas(bancos);
         }
 
         private void RemoveButton_Click(object sender, EventArgs e)

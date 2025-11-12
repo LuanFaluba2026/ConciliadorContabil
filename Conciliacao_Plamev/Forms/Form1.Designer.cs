@@ -82,7 +82,6 @@
             // 
             // logBox
             // 
-            logBox.Enabled = false;
             logBox.Location = new Point(19, 123);
             logBox.Multiline = true;
             logBox.Name = "logBox";

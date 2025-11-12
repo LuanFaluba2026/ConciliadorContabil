@@ -32,8 +32,8 @@
             nomeEmpresaTB = new TextBox();
             clienteTB = new CheckBox();
             fornecedorTB = new CheckBox();
-            button1 = new Button();
-            button2 = new Button();
+            OkBttn = new Button();
+            CancelarBttn = new Button();
             SuspendLayout();
             // 
             // label1
@@ -74,31 +74,33 @@
             fornecedorTB.UseVisualStyleBackColor = true;
             fornecedorTB.CheckedChanged += fornecedorTB_CheckedChanged;
             // 
-            // button1
+            // OkBttn
             // 
-            button1.Location = new Point(12, 106);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 4;
-            button1.Text = "OK";
-            button1.UseVisualStyleBackColor = true;
+            OkBttn.Location = new Point(12, 106);
+            OkBttn.Name = "OkBttn";
+            OkBttn.Size = new Size(75, 23);
+            OkBttn.TabIndex = 4;
+            OkBttn.Text = "OK";
+            OkBttn.UseVisualStyleBackColor = true;
+            OkBttn.Click += OkBttn_Click;
             // 
-            // button2
+            // CancelarBttn
             // 
-            button2.Location = new Point(93, 106);
-            button2.Name = "button2";
-            button2.Size = new Size(75, 23);
-            button2.TabIndex = 5;
-            button2.Text = "Cancelar";
-            button2.UseVisualStyleBackColor = true;
+            CancelarBttn.Location = new Point(93, 106);
+            CancelarBttn.Name = "CancelarBttn";
+            CancelarBttn.Size = new Size(75, 23);
+            CancelarBttn.TabIndex = 5;
+            CancelarBttn.Text = "Cancelar";
+            CancelarBttn.UseVisualStyleBackColor = true;
+            CancelarBttn.Click += CancelarBttn_Click;
             // 
             // AddBanco
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(273, 140);
-            Controls.Add(button2);
-            Controls.Add(button1);
+            Controls.Add(CancelarBttn);
+            Controls.Add(OkBttn);
             Controls.Add(fornecedorTB);
             Controls.Add(clienteTB);
             Controls.Add(nomeEmpresaTB);
@@ -107,7 +109,7 @@
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "AddBanco";
-            StartPosition = FormStartPosition.Manual;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Adicionar Banco";
             ResumeLayout(false);
             PerformLayout();
@@ -119,7 +121,7 @@
         private TextBox nomeEmpresaTB;
         private CheckBox clienteTB;
         private CheckBox fornecedorTB;
-        private Button button1;
-        private Button button2;
+        private Button OkBttn;
+        private Button CancelarBttn;
     }
 }

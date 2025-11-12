@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conciliacao_Plamev
+namespace Conciliacao_Plamev.Scripts
 {
     public class BancoDeDados
     {
@@ -24,11 +24,11 @@ namespace Conciliacao_Plamev
             sqliteConnection.Open();
             return sqliteConnection;
         }
-        public static void CriarBancoSQlite()
+        public static void CriarBancoSQlite(string tipo = "Fornecedor")
         {
             try
             {
-                string combinedPath = Path.Combine(Form1.dbPath, _empresa + ".sqlite");
+                string combinedPath = Path.Combine(Form1.dbPath,$"{_empresa}_{tipo}.sqlite");
                 if (!File.Exists(combinedPath))
                     SQLiteConnection.CreateFile(combinedPath);
             }

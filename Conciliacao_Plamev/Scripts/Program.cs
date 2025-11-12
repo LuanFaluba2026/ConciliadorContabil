@@ -1,8 +1,7 @@
-
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Data.SQLite;
 
-namespace Conciliacao_Plamev
+namespace Conciliacao_Plamev.Scripts
 {
     internal static class Program
     {

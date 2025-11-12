@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conciliacao_Plamev
+namespace Conciliacao_Plamev.Scripts.Conversao
 {
     internal class ConverterRazaoSenior
     {

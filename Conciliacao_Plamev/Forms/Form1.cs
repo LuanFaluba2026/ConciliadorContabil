@@ -1,3 +1,5 @@
+using Conciliacao_Plamev.Scripts;
+using Conciliacao_Plamev.Scripts.Conversao;
 using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Diagnostics;
@@ -23,6 +25,10 @@ namespace Conciliacao_Plamev
             }
             progressBar1.Step = 1;
 
+        }
+        public void AtualizarLog(string mensagem)
+        {
+            logBox.Invoke((Action)(() => logBox.AppendText(Environment.NewLine + mensagem)));
         }
         public void MudarEmpresa()
         {
@@ -223,5 +229,6 @@ namespace Conciliacao_Plamev
             GerenciamentoContasCadastradas form = new();
             form.ShowDialog();
         }
+
     }
 }

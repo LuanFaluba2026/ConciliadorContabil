@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -74,6 +75,8 @@ namespace Conciliacao_Plamev.Scripts
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
+                    Debug.WriteLine($"{mov.codigoForn} | {mov.dataMov} | {mov.historico} | {mov.notaRef} | {mov.credito} | {mov.debito}");
+
                     cmd.CommandText = "INSERT OR IGNORE INTO Movimento(idx, codigoForn, dataMov, historico, valorDebito, valorCredito, numNota, dataEncerramento) values (@Index, @codigoForn, @dataMov, @historico, @valorDebito, @valorCredito, @numNota, @dataEncerramento)";
                     cmd.Parameters.AddWithValue("@Index", BancoDeDados.GetMovimentos().Count + 1);
                     cmd.Parameters.AddWithValue("@codigoForn", mov.codigoForn);

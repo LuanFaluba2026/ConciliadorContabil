@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -81,6 +82,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
             {
                 "NFS",
                 "NF",
+                "NF.",
                 "REF.",
                 "VR.NF"
             };

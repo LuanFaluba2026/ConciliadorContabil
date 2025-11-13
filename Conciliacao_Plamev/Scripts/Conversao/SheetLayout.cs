@@ -39,7 +39,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
 
             List<CodigoContas> contasCadastradas = BancoDeDados.GetContas().ToList();
             Form1.Instance.SetMaxProgressBar(BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month && String.IsNullOrEmpty(x.dataEncerramento)).Count());
-            foreach (var conta in contasCadastradas.OrderBy(x => int.Parse(x.codigoForn)))
+            foreach (var conta in contasCadastradas.OrderBy(x => String.IsNullOrEmpty(x.contaAnalitica) ? int.Parse(x.codigoForn) : int.Parse(x.contaAnalitica.Replace(".", ""))))
             {
                 Form1.Instance.StepProgressBar();
                 List<Movimento> movConta = BancoDeDados.GetMovimentos().Where(x => x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
@@ -66,7 +66,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                             {
                                 if (Math.Abs(c.credito + somaDeb) < 0.1 && c.notaRef == movDebAtual[0].notaRef)
                                 {
-                                    Form1.Instance.AtualizarLog($"Credito da nota {c.notaRef} encerrado com {movDebAtual.Count} débitos");
+                                    Form1.Instance.AtualizarLog($"Credito na conta {c.codigoForn} da nota {c.notaRef} encerrado com {movDebAtual.Count} débitos.");
                                     BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, c.dataMov);
                                     foreach(var mov in movDebAtual)
                                         BancoDeDados.EncerrarMovimento(mov.codigoForn, mov.historico, c.dataMov);
@@ -89,7 +89,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                             {
                                 if (Math.Abs(d.debito + somaCred) < 0.1 && d.notaRef == movCredAtual[0].notaRef)
                                 {
-                                    Form1.Instance.AtualizarLog($"Débito da nota {d.notaRef} encerrado com {movCredAtual.Count} creditos");
+                                    Form1.Instance.AtualizarLog($"Débito na conta {d.codigoForn} da nota {d.notaRef} encerrado com {movCredAtual.Count} creditos.");
                                     BancoDeDados.EncerrarMovimento(d.codigoForn, d.historico, d.dataMov);
                                     foreach (var mov in movCredAtual)
                                         BancoDeDados.EncerrarMovimento(mov.codigoForn, mov.historico, d.dataMov);

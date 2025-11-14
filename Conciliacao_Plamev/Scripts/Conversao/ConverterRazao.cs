@@ -24,6 +24,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                     var ws = wb.Worksheet(1);
 
                     Form1.Instance.SetMaxProgressBar(ws.RowsUsed().Count());
+                    int indexLanc = 0;
                     for (int i = 2; i <= ws.RowsUsed().Count(); i++)
                     {
                         Form1.Instance.StepProgressBar();
@@ -41,6 +42,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
 
                         if(nomeFornecedor != "FORNECEDORES DIVERSOS")
                         {
+                            indexLanc++;
                             if (valorCredito == "0" && valorDebito == "0") //Verifica se a conta não é de fornecedores diversos e se a conta já existe no banco de dados.
                             {
                                 BancoDeDados.AddConta(new CodigoContas()
@@ -56,7 +58,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                                 {
                                     codigoForn = codigoFornecedor,
                                     dataMov = dataLançamento,
-                                    historico = historicoLancamento,
+                                    historico = historicoLancamento + $"IDXLanc - {indexLanc}",
                                     debito = double.Parse(valorDebito) * (-1),
                                     credito = double.Parse(valorCredito),
                                     notaRef = BuscarNfRef(historicoLancamento)

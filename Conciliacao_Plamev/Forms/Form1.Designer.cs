@@ -46,6 +46,7 @@
             menuStrip1 = new MenuStrip();
             SelecionarEmpresaButton = new Button();
             displayEmpresa = new Label();
+            versionLabel = new Label();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -206,10 +207,20 @@
             displayEmpresa.TabIndex = 12;
             displayEmpresa.Text = "Empresa:";
             // 
+            // versionLabel
+            // 
+            versionLabel.AutoSize = true;
+            versionLabel.Location = new Point(19, 444);
+            versionLabel.Name = "versionLabel";
+            versionLabel.Size = new Size(46, 15);
+            versionLabel.TabIndex = 13;
+            versionLabel.Text = "1.0.1.21";
+            // 
             // Form1
             // 
             AutoScaleMode = AutoScaleMode.None;
-            ClientSize = new Size(688, 450);
+            ClientSize = new Size(688, 464);
+            Controls.Add(versionLabel);
             Controls.Add(displayEmpresa);
             Controls.Add(SelecionarEmpresaButton);
             Controls.Add(SubstituirButton);
@@ -255,5 +266,6 @@
         private Button SelecionarEmpresaButton;
         private Label displayEmpresa;
         private ToolStripMenuItem gerenciamentoContasCadastradasToolStripMenuItem;
+        private Label versionLabel;
     }
 }

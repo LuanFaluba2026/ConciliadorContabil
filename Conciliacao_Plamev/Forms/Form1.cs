@@ -3,6 +3,7 @@ using Conciliacao_Plamev.Scripts.Conversao;
 using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace Conciliacao_Plamev
@@ -14,6 +15,7 @@ namespace Conciliacao_Plamev
         public Form1()
         {
             InitializeComponent();
+
             Instance = this;
 
             ListagemEmpresas form = new();

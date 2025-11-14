@@ -144,7 +144,15 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                             foreach (var cells in row)
                             {
                                 cells.Cell("A").Value = s.dataMov;
-                                cells.Cell("C").Value = s.historico;
+                                if(s.historico.Contains("IDXLanc"))
+                                {
+                                    int stringIndex = s.historico.IndexOf("IDXLanc");
+                                    cells.Cell("C").Value = s.historico.Substring(0, stringIndex);
+                                }
+                                else
+                                {
+                                    cells.Cell("C").Value = s.historico;
+                                }
                                 cells.Cell("E").Value = s.debito;
                                 cells.Cell("F").Value = s.credito;
                                 cells.Cell("A").Style.Font.FontColor = XLColor.Red;
@@ -166,7 +174,15 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                         foreach (var cells in row)
                         {
                             cells.Cell("A").Value = s.dataMov;
-                            cells.Cell("C").Value = s.historico;
+                            if (s.historico.Contains("IDXLanc"))
+                            {
+                                int stringIndex = s.historico.IndexOf("IDXLanc");
+                                cells.Cell("C").Value = s.historico.Substring(0, stringIndex);
+                            }
+                            else
+                            {
+                                cells.Cell("C").Value = s.historico;
+                            }
                             cells.Cell("E").Value = s.debito;
                             cells.Cell("F").Value = s.credito;
 

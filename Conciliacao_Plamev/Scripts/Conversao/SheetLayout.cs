@@ -67,7 +67,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                                 if (Math.Abs(c.credito + somaDeb) < 0.1 && c.notaRef == movDebAtual[0].notaRef)
                                 {
                                     Form1.Instance.AtualizarLog($"Credito na conta {c.codigoForn} da nota {c.notaRef} encerrado com {movDebAtual.Count} débitos.");
-                                    BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, c.dataMov);
+                                    BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, movDebAtual[0].dataMov);
                                     foreach(var mov in movDebAtual)
                                         BancoDeDados.EncerrarMovimento(mov.codigoForn, mov.historico, c.dataMov);
                                 }

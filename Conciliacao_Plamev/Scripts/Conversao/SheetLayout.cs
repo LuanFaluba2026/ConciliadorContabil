@@ -125,26 +125,54 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                     linhasUsadas += alturaFixa;
                 }
 
+                
                 movContaAnteriores = BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov) <= Form1.competencia && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
                 //Começa a escrever cada movimento do periodo/conta
-                foreach (var s in movContaAnteriores.OrderBy(x => DateTime.Parse(x.dataMov)))
+                foreach (var movPorNota in movContaAnteriores.GroupBy(x => x.codigoForn))
                 {
-                    //Condição: Se no movimento ainda não houver data de encerramento, ele será gerado.
-                    //Se o mês da movimentação for o mesmo que a da competencia, ele será gerado no campo de saldos do período.
-                    //Se o mês da movimentação for menor do que a data da competencia, ele será gerado no campo de saldos anteriores em aberto
-                    //Debug.WriteLine($"{s.dataMov} / {s.historico} / {s.debito} / {s.credito} / {s.dataEncerramento};");
-                    if (String.IsNullOrEmpty(s.dataEncerramento))
+                    foreach(var s in movPorNota.OrderBy(x => x.dataMov))
                     {
-                        DateTime dataToleravel = Form1.competencia.AddDays(-1);
-                        DateTime dataMov = DateTime.Parse(s.dataMov);
-                        if (dataMov <= dataToleravel)
+                        //Condição: Se no movimento ainda não houver data de encerramento, ele será gerado.
+                        //Se o mês da movimentação for o mesmo que a da competencia, ele será gerado no campo de saldos do período.
+                        //Se o mês da movimentação for menor do que a data da competencia, ele será gerado no campo de saldos anteriores em aberto
+                        //Debug.WriteLine(DateTime.Parse(s.dataMov) + " " + Form1.competencia);
+                        if (DateTime.Parse(s.dataMov) < Form1.competencia)
+                        {
+                            DateTime dataToleravel = Form1.competencia.AddDays(-1);
+                            DateTime dataMov = DateTime.Parse(s.dataMov);
+                            if (dataMov <= dataToleravel)
+                            {
+                                linhasUsadas++;
+                                var row = ws.Row(linhasUsadas - alturaFixa + 2).InsertRowsAbove(1);
+                                foreach (var cells in row)
+                                {
+                                    cells.Cell("A").Value = s.dataMov;
+                                    if (s.historico.Contains("IDXLanc"))
+                                    {
+                                        int stringIndex = s.historico.IndexOf("IDXLanc");
+                                        cells.Cell("C").Value = s.historico.Substring(0, stringIndex);
+                                    }
+                                    else
+                                    {
+                                        cells.Cell("C").Value = s.historico;
+                                    }
+                                    cells.Cell("E").Value = s.debito;
+                                    cells.Cell("F").Value = s.credito;
+                                    cells.Cell("A").Style.Font.FontColor = XLColor.Red;
+                                    cells.Cell("C").Style.Font.FontColor = XLColor.Red;
+                                    cells.Cell("E").Style.Font.FontColor = XLColor.Red;
+                                    cells.Cell("F").Style.Font.FontColor = XLColor.Red;
+                                }
+                            }
+                        }
+                        else //if(DateTime.Parse(s.dataMov).Month == Form1.competencia.Month)
                         {
                             linhasUsadas++;
-                            var row = ws.Row(linhasUsadas - alturaFixa + 2).InsertRowsAbove(1);
+                            var row = ws.Row(linhasUsadas - alturaFixa + 1).InsertRowsBelow(1);
                             foreach (var cells in row)
                             {
                                 cells.Cell("A").Value = s.dataMov;
-                                if(s.historico.Contains("IDXLanc"))
+                                if (s.historico.Contains("IDXLanc"))
                                 {
                                     int stringIndex = s.historico.IndexOf("IDXLanc");
                                     cells.Cell("C").Value = s.historico.Substring(0, stringIndex);
@@ -155,44 +183,17 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                                 }
                                 cells.Cell("E").Value = s.debito;
                                 cells.Cell("F").Value = s.credito;
-                                cells.Cell("A").Style.Font.FontColor = XLColor.Red;
-                                cells.Cell("C").Style.Font.FontColor = XLColor.Red;
-                                cells.Cell("E").Style.Font.FontColor = XLColor.Red;
-                                cells.Cell("F").Style.Font.FontColor = XLColor.Red;
-                            }
-                        }
-                    }
-                }
-                List<Movimento> movContaPeriodo = BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month == Form1.competencia.Month) && x.codigoForn == conta.codigoForn).ToList();
-                foreach (var s in movContaPeriodo.OrderBy(x => DateTime.Parse(x.dataMov)))
-                {
-                    //Debug.WriteLine($"{s.historico} || {s.codigoForn} || {linhasUsadas}");
-                    if (String.IsNullOrEmpty(s.dataEncerramento))
-                    {
-                        linhasUsadas++;
-                        var row = ws.Row(linhasUsadas - alturaFixa + 1).InsertRowsBelow(1);
-                        foreach (var cells in row)
-                        {
-                            cells.Cell("A").Value = s.dataMov;
-                            if (s.historico.Contains("IDXLanc"))
-                            {
-                                int stringIndex = s.historico.IndexOf("IDXLanc");
-                                cells.Cell("C").Value = s.historico.Substring(0, stringIndex);
-                            }
-                            else
-                            {
-                                cells.Cell("C").Value = s.historico;
-                            }
-                            cells.Cell("E").Value = s.debito;
-                            cells.Cell("F").Value = s.credito;
 
-                            cells.Cell("A").Style.Font.FontColor = XLColor.Black;
-                            cells.Cell("C").Style.Font.FontColor = XLColor.Black;
-                            cells.Cell("E").Style.Font.FontColor = XLColor.Black;
-                            cells.Cell("F").Style.Font.FontColor = XLColor.Black;
+                                cells.Cell("A").Style.Font.FontColor = XLColor.Black;
+                                cells.Cell("C").Style.Font.FontColor = XLColor.Black;
+                                cells.Cell("E").Style.Font.FontColor = XLColor.Black;
+                                cells.Cell("F").Style.Font.FontColor = XLColor.Black;
+                            }
                         }
                     }
+
                 }
+                
 
             }
             //totalizadors

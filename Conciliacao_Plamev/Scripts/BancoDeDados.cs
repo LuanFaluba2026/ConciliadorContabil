@@ -157,7 +157,7 @@ namespace Conciliacao_Plamev.Scripts
             {
                 using (var cmd = DbConnection().CreateCommand())
                 {
-                    cmd.CommandText = "SELECT * FROM Movimento";
+                    cmd.CommandText = "SELECT * FROM Movimento ORDER BY codigoForn ASC, dataMov ASC;";
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())

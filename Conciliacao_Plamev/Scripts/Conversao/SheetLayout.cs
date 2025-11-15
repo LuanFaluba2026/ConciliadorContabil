@@ -38,15 +38,15 @@ namespace Conciliacao_Plamev.Scripts.Conversao
             ws.Column("H").Width = 24.71;
 
             List<CodigoContas> contasCadastradas = BancoDeDados.GetContas().ToList();
-            Form1.Instance.SetMaxProgressBar(BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month && String.IsNullOrEmpty(x.dataEncerramento)).Count());
+            Form1.Instance.SetMaxProgressBar(BancoDeDados.GetContas().Count());
             foreach (var conta in contasCadastradas.OrderBy(x => String.IsNullOrEmpty(x.contaAnalitica) ? int.Parse(x.codigoForn) : int.Parse(x.contaAnalitica.Replace(".", ""))))
             {
                 Form1.Instance.StepProgressBar();
-                List<Movimento> movConta = BancoDeDados.GetMovimentos().Where(x => x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
+                List<Movimento> movEncerrar = BancoDeDados.GetMovimentos().Where(x => x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
 
                 //Passa pelos movimentos que contém débito e crédito no periodo (baseado no número da nota e valor), e encerra ele no banco de dados
                 //Atribuíndo a data de movimentação do débito na data de encerramento do crédito. Vice-versa
-                foreach (var grupo in movConta.GroupBy(x => x.notaRef))
+                foreach (var grupo in movEncerrar.GroupBy(x => x.notaRef))
                 {
                     var creditos = grupo.Where(x => x.credito > 0).ToList();
                     var debitos = grupo.Where(x => x.debito < 0).ToList();
@@ -104,8 +104,11 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                     }
                 }
                 //Gera o registro da conta somente se pelo menos um movimento ainda esteja sem encerrar.
-                List<Movimento> movContaAnteriores = BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year < Form1.competencia.Year || (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month)) && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
-                if (movContaAnteriores.Any(x => x.codigoForn == conta.codigoForn))
+                List<Movimento> movPorConta= BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year < Form1.competencia.Year ||
+                                                                                    (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month)) && 
+                                                                                    x.codigoForn == conta.codigoForn && 
+                                                                                    String.IsNullOrEmpty(x.dataEncerramento)).ToList();
+                if (movPorConta.Any(x => x.codigoForn == conta.codigoForn))
                 {
                     ws.Cell(1 + linhasUsadas, "A").Value = "Conta:";
                     ws.Cell(1 + linhasUsadas, "C").Value = conta.codigoForn;
@@ -124,48 +127,42 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                     ws.Cell(alturaFixa - 1 + linhasUsadas, "G").FormulaA1 = $"=SUM(E{linhasUsadas + 2}:F{linhasUsadas + alturaFixa})";
                     linhasUsadas += alturaFixa;
                 }
-
-                
-                movContaAnteriores = BancoDeDados.GetMovimentos().Where(x => DateTime.Parse(x.dataMov) <= Form1.competencia && x.codigoForn == conta.codigoForn && String.IsNullOrEmpty(x.dataEncerramento)).ToList();
                 //Começa a escrever cada movimento do periodo/conta
-                foreach (var movPorNota in movContaAnteriores.GroupBy(x => x.codigoForn))
+                foreach (var movPorNota in movPorConta.GroupBy(x => x.notaRef))
                 {
-                    foreach(var s in movPorNota.OrderBy(x => x.dataMov))
+                    foreach(var s in movPorNota)
                     {
                         //Condição: Se no movimento ainda não houver data de encerramento, ele será gerado.
                         //Se o mês da movimentação for o mesmo que a da competencia, ele será gerado no campo de saldos do período.
                         //Se o mês da movimentação for menor do que a data da competencia, ele será gerado no campo de saldos anteriores em aberto
                         //Debug.WriteLine(DateTime.Parse(s.dataMov) + " " + Form1.competencia);
-                        if (DateTime.Parse(s.dataMov) < Form1.competencia)
+                        DateTime parsedDate = DateTime.Parse(s.dataMov);
+                        DateTime dataToleravel = Form1.competencia.AddDays(-1);
+                        if (parsedDate <= dataToleravel)
                         {
-                            DateTime dataToleravel = Form1.competencia.AddDays(-1);
-                            DateTime dataMov = DateTime.Parse(s.dataMov);
-                            if (dataMov <= dataToleravel)
+                            linhasUsadas++;
+                            var row = ws.Row(linhasUsadas - alturaFixa + 2).InsertRowsAbove(1);
+                            foreach (var cells in row)
                             {
-                                linhasUsadas++;
-                                var row = ws.Row(linhasUsadas - alturaFixa + 2).InsertRowsAbove(1);
-                                foreach (var cells in row)
+                                cells.Cell("A").Value = s.dataMov;
+                                if (s.historico.Contains("IDXLanc"))
                                 {
-                                    cells.Cell("A").Value = s.dataMov;
-                                    if (s.historico.Contains("IDXLanc"))
-                                    {
-                                        int stringIndex = s.historico.IndexOf("IDXLanc");
-                                        cells.Cell("C").Value = s.historico.Substring(0, stringIndex);
-                                    }
-                                    else
-                                    {
-                                        cells.Cell("C").Value = s.historico;
-                                    }
-                                    cells.Cell("E").Value = s.debito;
-                                    cells.Cell("F").Value = s.credito;
-                                    cells.Cell("A").Style.Font.FontColor = XLColor.Red;
-                                    cells.Cell("C").Style.Font.FontColor = XLColor.Red;
-                                    cells.Cell("E").Style.Font.FontColor = XLColor.Red;
-                                    cells.Cell("F").Style.Font.FontColor = XLColor.Red;
+                                    int stringIndex = s.historico.IndexOf("IDXLanc");
+                                    cells.Cell("C").Value = s.historico.Substring(0, stringIndex);
                                 }
+                                else
+                                {
+                                    cells.Cell("C").Value = s.historico;
+                                }
+                                cells.Cell("E").Value = s.debito;
+                                cells.Cell("F").Value = s.credito;
+                                cells.Cell("A").Style.Font.FontColor = XLColor.Red;
+                                cells.Cell("C").Style.Font.FontColor = XLColor.Red;
+                                cells.Cell("E").Style.Font.FontColor = XLColor.Red;
+                                cells.Cell("F").Style.Font.FontColor = XLColor.Red;
                             }
                         }
-                        else //if(DateTime.Parse(s.dataMov).Month == Form1.competencia.Month)
+                        else if(parsedDate.Month == Form1.competencia.Month && parsedDate.Year == Form1.competencia.Year)
                         {
                             linhasUsadas++;
                             var row = ws.Row(linhasUsadas - alturaFixa + 1).InsertRowsBelow(1);

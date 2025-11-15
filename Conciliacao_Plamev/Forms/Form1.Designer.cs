@@ -214,7 +214,7 @@
             versionLabel.Name = "versionLabel";
             versionLabel.Size = new Size(46, 15);
             versionLabel.TabIndex = 13;
-            versionLabel.Text = "1.0.1.21";
+            versionLabel.Text = "1.0.1.22";
             // 
             // Form1
             // 

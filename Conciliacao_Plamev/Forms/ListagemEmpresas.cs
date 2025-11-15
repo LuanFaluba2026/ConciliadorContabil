@@ -86,8 +86,7 @@ namespace Conciliacao_Plamev
         {
             if (String.IsNullOrEmpty(BancoDeDados._empresa))
             {
-                MessageBox.Show("Selecione uma empresa.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
+                Application.Exit();
             }
         }
     }

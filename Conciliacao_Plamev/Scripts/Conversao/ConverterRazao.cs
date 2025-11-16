@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Conciliacao_Plamev.Forms;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
@@ -77,20 +78,13 @@ namespace Conciliacao_Plamev.Scripts.Conversao
             
         }
 
-        private static string BuscarNfRef(string historico)
+        public static string BuscarNfRef(string historico)
         {
             string[] words = historico.Split(' ');
-            string[] possiveisCombinacoes =
-            {
-                "NFS",
-                "NF",
-                "NF.",
-                "REF.",
-                "VR.NF"
-            };
+            List<Prefixos> possiveisCombinacoes = BancoDeDados.GetPrefixos();
             foreach(var c in possiveisCombinacoes)
             {
-                int numeroNota = Array.IndexOf(words, c);
+                int numeroNota = Array.IndexOf(words, c.prefx);
                 if(numeroNota >= 0)
                 {
                     string word = words[numeroNota + 1];
@@ -100,7 +94,12 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                     n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
                     n = n.Replace(".", "");
                     n = n.TrimStart('0');
-                    //Debug.WriteLine($"{n} || {historico}");
+                    if(n.Contains('/'))
+                    {
+                        int slashIndex = n.IndexOf('/');
+                        n = n.Substring(0, slashIndex);
+                    }
+                    n = n.Replace("/", "");
                     return n;
                 }
             }

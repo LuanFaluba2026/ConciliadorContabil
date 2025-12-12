@@ -202,7 +202,7 @@ namespace Conciliacao_Plamev
                     {
                         throw new Exception("Preencha os campos obrigatórios.");
                     }
-                    BancoDeDados.UpdateMovimento(mov, (long)row.Cells["idx"].Value);
+                    BancoDeDados.UpdateMovimento(mov, mov.historico);
                 }
             }
             catch (Exception ex)

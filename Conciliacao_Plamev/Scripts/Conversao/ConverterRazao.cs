@@ -126,7 +126,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                     credito = m.credito,
                     notaRef = m.notaRef,
                     dataEncerramento = null
-                }, m.idx);
+                }, m.historico);
             }
 
         }

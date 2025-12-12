@@ -9,11 +9,11 @@ namespace Conciliacao_Plamev.Scripts
         public static string ClienteFornecedor()
         {
             string dbName = Path.GetFileName(Path.Combine(Form1.dbPath, BancoDeDados._empresa) + ".sqlite");
-            if (dbName.Contains("_Fornecedor"))
+            if (dbName.Contains("_Fornecedor", StringComparison.OrdinalIgnoreCase))
             {
                 return "Fornecedor";
             }
-            else if (dbName.Contains("_Cliente"))
+            else if (dbName.Contains("_Cliente", StringComparison.OrdinalIgnoreCase))
             {
                 return "Cliente";
             }

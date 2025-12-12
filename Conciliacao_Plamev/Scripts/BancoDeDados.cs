@@ -232,20 +232,20 @@ namespace Conciliacao_Plamev.Scripts
                 MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        public static void UpdateMovimento(Movimento mov, long index)
+        public static void UpdateMovimento(Movimento mov, string historicoDesejado)
         {
             try
             {
                 using (var cmd = new SQLiteCommand(DbConnection()))
                 {
-                    cmd.CommandText = "UPDATE Movimento SET dataMov = @dataMov, historico = @historico, valorDebito = @valorDebito, valorCredito = @valorCredito, numNota = @notaRef, dataEncerramento = @dataEncerramento WHERE idx=@Index";
+                    cmd.CommandText = "UPDATE Movimento SET dataMov = @dataMov, historico = @historico, valorDebito = @valorDebito, valorCredito = @valorCredito, numNota = @notaRef, dataEncerramento = @dataEncerramento WHERE historico=@HistoricoDesejado";
                     cmd.Parameters.AddWithValue("@dataMov", mov.dataMov);
                     cmd.Parameters.AddWithValue("@historico", mov.historico);
                     cmd.Parameters.AddWithValue("@valorDebito", mov.debito);
                     cmd.Parameters.AddWithValue("@valorCredito", mov.credito);
                     cmd.Parameters.AddWithValue("@notaRef", mov.notaRef);
                     cmd.Parameters.AddWithValue("@dataEncerramento", mov.dataEncerramento);
-                    cmd.Parameters.AddWithValue("@Index", index);
+                    cmd.Parameters.AddWithValue("@HistoricoDesejado", historicoDesejado);
                     cmd.ExecuteNonQuery();
                 }
             }catch(Exception ex)

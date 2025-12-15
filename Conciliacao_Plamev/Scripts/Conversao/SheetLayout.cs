@@ -48,11 +48,11 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                 //Atribuíndo a data de movimentação do débito na data de encerramento do crédito. Vice-versa
                 foreach (var grupo in movEncerrar.GroupBy(x => x.notaRef))
                 {
-                    var creditos = grupo.Where(x => x.credito > 0).ToList();
-                    var debitos = grupo.Where(x => x.debito < 0).ToList();
-
                     if(Program.ClienteFornecedor() == "Fornecedor")
                     {
+                        var creditos = grupo.Where(x => x.credito > 0).ToList();
+                        var debitos = grupo.Where(x => x.debito < 0).ToList();
+
                         double somaDeb = 0;
                         List<Movimento> movDebAtual = new();
                         foreach (var d in debitos)
@@ -76,6 +76,9 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                     }
                     else if (Program.ClienteFornecedor() == "Cliente")
                     {
+                        var creditos = grupo.Where(x => x.credito < 0).ToList();
+                        var debitos = grupo.Where(x => x.debito > 0).ToList();
+
                         double somaCred = 0;
                         List<Movimento> movCredAtual = new();
                         foreach (var c in creditos)

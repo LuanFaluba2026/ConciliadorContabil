@@ -59,8 +59,8 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                                     codigoForn = codigoFornecedor,
                                     dataMov = dataLançamento,
                                     historico = historicoLancamento + $"IDXLanc - {indexLanc}",
-                                    debito = double.Parse(valorDebito) * (-1),
-                                    credito = double.Parse(valorCredito),
+                                    debito = Program.ClienteFornecedor() == "Fornecedor" ? double.Parse(valorDebito) * (-1) : double.Parse(valorDebito),
+                                    credito = Program.ClienteFornecedor() == "Fornecedor" ? double.Parse(valorCredito) : double.Parse(valorCredito) * (-1),
                                     notaRef = BuscarNfRef(historicoLancamento)
                                 });
 
@@ -68,6 +68,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                         }
                     }
                 }
+
                 Form1.Instance.SetProgressBarValue(0);
             }
             catch(Exception ex)
@@ -126,7 +127,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                     credito = m.credito,
                     notaRef = m.notaRef,
                     dataEncerramento = null
-                }, m.historico);
+                }, m.idx);
             }
 
         }

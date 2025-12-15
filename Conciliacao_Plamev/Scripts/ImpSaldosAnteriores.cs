@@ -37,6 +37,8 @@ namespace Conciliacao_Plamev.Scripts
                             naoEncontrados.Add($"Conta - {col[0]} Descrição - {col[3]}");
                     }
                 }
+                if (naoEncontrados.Count == 0)
+                    return;
                 SaveFileDialog sfd = new();
                 sfd.FileName = "log-NãoEcontrados.txt";
                 if (sfd.ShowDialog() == DialogResult.OK)

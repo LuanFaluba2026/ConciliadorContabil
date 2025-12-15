@@ -71,7 +71,6 @@ namespace Conciliacao_Plamev
             Stopwatch sw = new();
             SheetLayout sheetL = new();
             BancoDeDados.CriarTabelaSQLite();
-
             try
             {
                 if (ImportarMovimentoCheck.Checked)
@@ -116,6 +115,7 @@ namespace Conciliacao_Plamev
                         if (SubstituirButton.Checked)
                             MessageBox.Show("Foi gerado um BackUp do banco de dados anterior em \"C:\\Data\\BancoDeDados_Movimentação_BACKUP.sqlite\"", "Confirmação", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         logBox.AppendText($"\r\n Processamento Concluído! ({sw.Elapsed.ToString(@"hh\:mm\:ss")})");
+
                     }
                     else
                     {
@@ -136,6 +136,7 @@ namespace Conciliacao_Plamev
                         });
                         sw.Stop();
                         logBox.AppendText($"\r\n Processamento Concluído ! ({sw.Elapsed.ToString(@"hh\:mm\:ss")})");
+
                     }
                     else
                     {

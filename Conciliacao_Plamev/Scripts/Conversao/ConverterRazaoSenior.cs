@@ -26,7 +26,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                     string dataLançamento = col[0];
                     string nomeFornecedor = col[1];
                     string codigoFornecedor = col[3];
-                    double valorDebito = double.Parse(col[4]) * (-1);
+                    double valorDebito = double.Parse(col[4]);
                     double valorCredito = double.Parse(col[5]);
                     string historicoLancamento = col[7];
 
@@ -43,8 +43,8 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                         codigoForn = codigoFornecedor,
                         dataMov = dataLançamento,
                         historico = historicoLancamento,
-                        debito = valorDebito,
-                        credito = valorCredito,
+                        debito = Program.ClienteFornecedor() == "Fornecedor" ? valorDebito * (-1) : valorDebito,
+                        credito = Program.ClienteFornecedor() == "Fornecedor" ? valorCredito : valorCredito * (-1),
                         notaRef = BuscarNfRef(historicoLancamento)
                     });
                 }

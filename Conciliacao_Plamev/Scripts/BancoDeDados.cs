@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Office.Word;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -73,12 +74,12 @@ namespace Conciliacao_Plamev.Scripts
         {
             try
             {
+                int quantidadeDB = BancoDeDados.GetMovimentos().Count + 1;
                 using (var cmd = DbConnection().CreateCommand())
                 {
                     Debug.WriteLine($"{mov.codigoForn} | {mov.dataMov} | {mov.historico} | {mov.notaRef} | {mov.credito} | {mov.debito}");
 
-                    cmd.CommandText = "INSERT OR IGNORE INTO Movimento(idx, codigoForn, dataMov, historico, valorDebito, valorCredito, numNota, dataEncerramento) values (@Index, @codigoForn, @dataMov, @historico, @valorDebito, @valorCredito, @numNota, @dataEncerramento)";
-                    cmd.Parameters.AddWithValue("@Index", BancoDeDados.GetMovimentos().Count + 1);
+                    cmd.CommandText = "INSERT OR IGNORE INTO Movimento(idx, codigoForn, dataMov, historico, valorDebito, valorCredito, numNota, dataEncerramento) SELECT IFNULL(MAX(idx), 0) + 1, @codigoForn, @dataMov, @historico, @valorDebito, @valorCredito, @numNota, @dataEncerramento FROM Movimento";
                     cmd.Parameters.AddWithValue("@codigoForn", mov.codigoForn);
                     cmd.Parameters.AddWithValue("@dataMov", mov.dataMov);
                     cmd.Parameters.AddWithValue("@historico", mov.historico);
@@ -232,25 +233,47 @@ namespace Conciliacao_Plamev.Scripts
                 MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        public static void UpdateMovimento(Movimento mov, string historicoDesejado)
+        public static void UpdateMovimento(Movimento mov, long index)
         {
             try
             {
                 using (var cmd = new SQLiteCommand(DbConnection()))
                 {
-                    cmd.CommandText = "UPDATE Movimento SET dataMov = @dataMov, historico = @historico, valorDebito = @valorDebito, valorCredito = @valorCredito, numNota = @notaRef, dataEncerramento = @dataEncerramento WHERE historico=@HistoricoDesejado";
+                    cmd.CommandText = "UPDATE Movimento SET dataMov = @dataMov, historico = @historico, valorDebito = @valorDebito, valorCredito = @valorCredito, numNota = @notaRef, dataEncerramento = @dataEncerramento WHERE idx=@Index";
                     cmd.Parameters.AddWithValue("@dataMov", mov.dataMov);
                     cmd.Parameters.AddWithValue("@historico", mov.historico);
                     cmd.Parameters.AddWithValue("@valorDebito", mov.debito);
                     cmd.Parameters.AddWithValue("@valorCredito", mov.credito);
                     cmd.Parameters.AddWithValue("@notaRef", mov.notaRef);
                     cmd.Parameters.AddWithValue("@dataEncerramento", mov.dataEncerramento);
-                    cmd.Parameters.AddWithValue("@HistoricoDesejado", historicoDesejado);
+                    cmd.Parameters.AddWithValue("@Index", index);
                     cmd.ExecuteNonQuery();
                 }
             }catch(Exception ex)
             {
                 MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        public static void ValidaçãoDB()
+        {
+            using (var cmd = new SQLiteCommand(DbConnection()))
+            {
+                if (Program.ClienteFornecedor() == "Fornecedor")
+                {
+                    cmd.CommandText = "UPDATE Movimento SET valorDebito = -ABS(valorDebito);";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "UPDATE Movimento SET valorCredito = ABS(valorCredito)";
+                    cmd.ExecuteNonQuery();
+                }
+                else if(Program.ClienteFornecedor() == "Cliente")
+                {
+                    cmd.CommandText = "UPDATE Movimento SET valorDebito = ABS(valorDebito);";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "UPDATE Movimento SET valorCredito = -ABS(valorCredito)";
+                    cmd.ExecuteNonQuery();
+                }
+                cmd.CommandText = "UPDATE Movimento SET idx = rowid";
+                cmd.ExecuteNonQuery();
             }
         }
     }

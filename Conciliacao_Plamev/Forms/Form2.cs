@@ -202,7 +202,7 @@ namespace Conciliacao_Plamev
                     {
                         throw new Exception("Preencha os campos obrigatórios.");
                     }
-                    BancoDeDados.UpdateMovimento(mov, mov.historico);
+                    BancoDeDados.UpdateMovimento(mov, (long)row.Cells["idx"].Value);
                 }
             }
             catch (Exception ex)
@@ -223,15 +223,44 @@ namespace Conciliacao_Plamev
 
             return true;
         }
-        //TORNAR VALOR DEBUTO NEGATIVO
+        //TORNAR VALOR DEBITO NEGATIVO
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (dataGridView1.Columns[e.ColumnIndex].Name == "debito")
+            if(Program.ClienteFornecedor() == "Fornecedor")
             {
-                var cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
-                if (decimal.TryParse(cell.Value?.ToString(), out decimal valor))
+                if (dataGridView1.Columns[e.ColumnIndex].Name == "debito")
                 {
-                    cell.Value = -Math.Abs(valor);
+                    var cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    if (decimal.TryParse(cell.Value?.ToString(), out decimal valorD))
+                    {
+                        cell.Value = -Math.Abs(valorD);
+                    }
+                }
+                if (dataGridView1.Columns[e.ColumnIndex].Name == "credito")
+                {
+                    var cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    if (decimal.TryParse(cell.Value?.ToString(), out decimal valorC))
+                    {
+                        cell.Value = Math.Abs(valorC);
+                    }
+                }
+            } else if(Program.ClienteFornecedor() == "Cliente")
+            {
+                if (dataGridView1.Columns[e.ColumnIndex].Name == "debito")
+                {
+                    var cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    if (decimal.TryParse(cell.Value?.ToString(), out decimal valorD))
+                    {
+                        cell.Value = Math.Abs(valorD);
+                    }
+                }
+                if (dataGridView1.Columns[e.ColumnIndex].Name == "credito")
+                {
+                    var cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    if (decimal.TryParse(cell.Value?.ToString(), out decimal valorC))
+                    {
+                        cell.Value = -Math.Abs(valorC);
+                    }
                 }
             }
         }

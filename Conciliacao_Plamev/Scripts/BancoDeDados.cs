@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Office.Word;
+﻿using Conciliacao_Plamev.Forms;
+using DocumentFormat.OpenXml.Office.Word;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,8 @@ namespace Conciliacao_Plamev.Scripts
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE IF NOT EXISTS CadastroContas (codigo TEXT NOT NULL, contaAnalitica TEXT, nomeFornecedor TEXT NOT NULL, PRIMARY KEY(codigo));";
                     cmd.ExecuteNonQuery();
+                    cmd.CommandText = "CREATE TABLE IF NOT EXISTS Prefixos (id INTEGER PRIMARY KEY AUTOINCREMENT, prefx TEXT NOT NULL);";
+                    cmd.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
@@ -69,7 +72,6 @@ namespace Conciliacao_Plamev.Scripts
                 MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         public static void AddMovimento(Movimento mov)
         {
             try
@@ -252,6 +254,69 @@ namespace Conciliacao_Plamev.Scripts
             }catch(Exception ex)
             {
                 MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        //Gerenciamento de Prefixos
+        public static void AddPrefixo(Prefixos prefx)
+        {
+            try
+            {
+                using (var cmd = DbConnection().CreateCommand())
+                {
+                    cmd.CommandText = "INSERT OR IGNORE INTO Prefixos(prefx) values (@Prefx)";
+                    cmd.Parameters.AddWithValue("@Prefx", prefx.prefx);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        public static void RemovePrefixo(string prefixo)
+        {
+            try
+            {
+                using (var cmd = DbConnection().CreateCommand())
+                {
+                    cmd.CommandText = "DELETE FROM Prefixos WHERE prefx=@Prefx";
+                    cmd.Parameters.AddWithValue("@Prefx", prefixo);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        public static List<Prefixos> GetPrefixos()
+        {
+            List<Prefixos> lista = new();
+            try
+            {
+                using (var cmd = DbConnection().CreateCommand())
+                {
+                    cmd.CommandText = "SELECT * FROM Prefixos";
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            lista.Add(new Prefixos
+                            {
+                                index = (long)reader["id"],
+                                prefx = reader["prefx"].ToString()
+                            });
+
+                        }
+                        return lista;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw new Exception(ex.Message);
             }
         }
         public static void ValidaçãoDB()

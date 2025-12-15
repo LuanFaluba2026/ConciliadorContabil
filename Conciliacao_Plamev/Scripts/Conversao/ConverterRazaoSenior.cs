@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using Conciliacao_Plamev.Forms;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -45,7 +46,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                         historico = historicoLancamento,
                         debito = Program.ClienteFornecedor() == "Fornecedor" ? valorDebito * (-1) : valorDebito,
                         credito = Program.ClienteFornecedor() == "Fornecedor" ? valorCredito : valorCredito * (-1),
-                        notaRef = BuscarNfRef(historicoLancamento)
+                        notaRef = ConverterRazao.BuscarNfRef(historicoLancamento)
                     });
                 }
             }
@@ -53,44 +54,6 @@ namespace Conciliacao_Plamev.Scripts.Conversao
             {
                 MessageBox.Show($"{ex.Message} || {ex.StackTrace}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-        private static string BuscarNfRef(string historico)
-        {
-            string[] words = historico.Split(' ');
-            string[] possiveisCombinacoes =
-            {
-                "NFS",
-                "NF",
-                "REF.",
-                "VR.NF",
-                "Vlr.NF",
-                "NF/Titulo",
-                "Titulo"
-            };
-            foreach (var c in possiveisCombinacoes)
-            {
-                int numeroNota = Array.IndexOf(words, c);
-                if (numeroNota >= 0)
-                {
-                    string word = words[numeroNota + 1];
-                    string n = word.StartsWith("250") ? word.Substring(2) : word;
-                    n = n.StartsWith("2025/") ? n.Substring(5) : n;
-                    n = n.StartsWith("2025") ? n.Substring(4) : n;
-                    n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
-                    n = n.Replace(".", "");
-                    n = n.TrimStart('0');
-
-                    if(n.Contains('/'))
-                    {
-                        int slashIndex = n.IndexOf('/');
-                        n = n.Substring(0, slashIndex);
-                    }
-
-                    //Debug.WriteLine($"{n} || {historico}");
-                    return n;
-                }
-            }
-            return "";
         }
     }
 }

@@ -1,3 +1,4 @@
+using Conciliacao_Plamev.Forms;
 using Conciliacao_Plamev.Scripts;
 using Conciliacao_Plamev.Scripts.Conversao;
 using DocumentFormat.OpenXml.ExtendedProperties;
@@ -71,6 +72,29 @@ namespace Conciliacao_Plamev
             Stopwatch sw = new();
             SheetLayout sheetL = new();
             BancoDeDados.CriarTabelaSQLite();
+            //Adiciona os prefixos pré-definidos anteriormente
+            string[] prefixosPadroes =
+            {
+                        "NFS",
+                        "NF",
+                        "NF.",
+                        "REF.",
+                        "VR.NF",
+                        "VR.NF",
+                        "Vlr.NF",
+                        "NF/Titulo",
+                        "Titulo"
+            };
+            foreach (var v in prefixosPadroes)
+            {
+                if (BancoDeDados.GetPrefixos().Any(x => x.prefx == v))
+                {
+                    continue;
+                }
+                else
+                    BancoDeDados.AddPrefixo(new Prefixos() { prefx = v });
+            }
+
             try
             {
                 if (ImportarMovimentoCheck.Checked)
@@ -233,5 +257,10 @@ namespace Conciliacao_Plamev
             form.ShowDialog();
         }
 
+        private void prefixosDeNotasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ParametrizaçãoDePrefixos parametForm = new();
+            parametForm.ShowDialog();
+        }
     }
 }

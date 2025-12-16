@@ -201,7 +201,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
             ws.Cell(linhasUsadas + 2, "G").Style.Font.Bold = true;
             ws.Cell(linhasUsadas + 2, "F").Value = "Total:";
             ws.Cell(linhasUsadas + 2, "G").FormulaA1 = $"=SUM(G2:G{linhasUsadas})";
-            wb.SaveAs(Path.Combine(path, $"Fornecedores-{DateTime.Now.ToString("dd-MM-yy_HH-mm-ss")}.xlsx"));
+            wb.SaveAs(Path.Combine(path, $"{Program.ClienteFornecedor()}-{DateTime.Now.ToString("dd-MM-yy_HH-mm-ss")}.xlsx"));
 
             Form1.Instance.SetProgressBarValue(0);
         }

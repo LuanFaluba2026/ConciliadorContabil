@@ -72,6 +72,8 @@ namespace Conciliacao_Plamev
             Stopwatch sw = new();
             SheetLayout sheetL = new();
             BancoDeDados.CriarTabelaSQLite();
+            BancoDeDados.ValidaçãoDB();
+
             //Adiciona os prefixos pré-definidos anteriormente
             string[] prefixosPadroes =
             {

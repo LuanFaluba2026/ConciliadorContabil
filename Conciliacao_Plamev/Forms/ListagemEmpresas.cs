@@ -78,6 +78,8 @@ namespace Conciliacao_Plamev
             {
                 BancoDeDados._empresa = empresasListBox.SelectedItem.ToString();
                 Form1.Instance.MudarEmpresa();
+
+                BancoDeDados.CriarTabelaSQLite();
                 this.Close();
             }
         }

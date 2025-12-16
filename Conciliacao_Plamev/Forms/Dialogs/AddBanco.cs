@@ -63,6 +63,7 @@ namespace Conciliacao_Plamev
             }catch(Exception ex)
             {
                 MessageBox.Show("Campos Inválidos", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw new Exception(ex.Message);
             }
         }
     }

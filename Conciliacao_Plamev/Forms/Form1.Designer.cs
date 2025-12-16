@@ -47,6 +47,8 @@
             SelecionarEmpresaButton = new Button();
             displayEmpresa = new Label();
             versionLabel = new Label();
+            toolStripMenuItem1 = new ToolStripMenuItem();
+            prefixosDeNotasToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -180,7 +182,7 @@
             // menuStrip1
             // 
             menuStrip1.BackColor = SystemColors.ButtonHighlight;
-            menuStrip1.Items.AddRange(new ToolStripItem[] { cadastrosToolStripMenuItem, importaçãoToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { cadastrosToolStripMenuItem, importaçãoToolStripMenuItem, toolStripMenuItem1 });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.RenderMode = ToolStripRenderMode.System;
@@ -215,6 +217,20 @@
             versionLabel.Size = new Size(46, 15);
             versionLabel.TabIndex = 13;
             versionLabel.Text = "1.0.1.22";
+            // 
+            // toolStripMenuItem1
+            // 
+            toolStripMenuItem1.DropDownItems.AddRange(new ToolStripItem[] { prefixosDeNotasToolStripMenuItem });
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            toolStripMenuItem1.Size = new Size(57, 20);
+            toolStripMenuItem1.Text = "Ajustes";
+            // 
+            // prefixosDeNotasToolStripMenuItem
+            // 
+            prefixosDeNotasToolStripMenuItem.Name = "prefixosDeNotasToolStripMenuItem";
+            prefixosDeNotasToolStripMenuItem.Size = new Size(180, 22);
+            prefixosDeNotasToolStripMenuItem.Text = "Prefixos de Notas";
+            prefixosDeNotasToolStripMenuItem.Click += prefixosDeNotasToolStripMenuItem_Click;
             // 
             // Form1
             // 
@@ -267,5 +283,7 @@
         private Label displayEmpresa;
         private ToolStripMenuItem gerenciamentoContasCadastradasToolStripMenuItem;
         private Label versionLabel;
+        private ToolStripMenuItem toolStripMenuItem1;
+        private ToolStripMenuItem prefixosDeNotasToolStripMenuItem;
     }
 }

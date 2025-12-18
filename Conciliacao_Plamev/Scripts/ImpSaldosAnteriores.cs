@@ -16,12 +16,13 @@ namespace Conciliacao_Plamev.Scripts
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 string[] lines = File.ReadAllLines(path, Encoding.GetEncoding("Windows-1252"));
                 var naoEncontrados = new List<string>();
+                List<Movimento> movProvisorios = new();
                 foreach (string line in lines.Skip(1))
                 {
                     string[] col = line.Split(";");
                     if (BancoDeDados.GetContas().Any(x => x.codigoForn == col[0]))
                     {
-                        BancoDeDados.AddMovimento(new Movimento()
+                        movProvisorios.Add(new Movimento()
                         {
                             codigoForn = col[0],
                             dataMov = col[1],
@@ -38,14 +39,24 @@ namespace Conciliacao_Plamev.Scripts
                     }
                 }
                 if (naoEncontrados.Count == 0)
-                    return;
-                SaveFileDialog sfd = new();
-                sfd.FileName = "log-NãoEcontrados.txt";
-                if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    File.WriteAllLines(sfd.FileName, naoEncontrados);
+                    foreach(Movimento mov in movProvisorios)
+                    {
+                        BancoDeDados.AddMovimento(mov);
+                    }
+                    MessageBox.Show($"Processamento Concluído, foram importadaos {movProvisorios.Count} movimentos.");
+                    return;
                 }
-                MessageBox.Show("Processamento Concluído");
+                else
+                {
+                    MessageBox.Show("Processamento cancelado. Existem movimentos que não possuem contas cadastradas.");
+                    SaveFileDialog sfd = new();
+                    sfd.FileName = "log-NãoEcontrados.txt";
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                    {
+                        File.WriteAllLines(sfd.FileName, naoEncontrados);
+                    }
+                }
             }
             catch (Exception ex)
             {

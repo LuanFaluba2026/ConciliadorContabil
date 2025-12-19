@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Conciliacao_Plamev.Forms;
+using Conciliacao_Plamev.Scripts.Conversao;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,7 +28,7 @@ namespace Conciliacao_Plamev.Scripts
                         {
                             codigoForn = col[0],
                             dataMov = col[1],
-                            notaRef = col[2],
+                            notaRef = ConverterRazao.ValidarNumero(col[2]),
                             historico = col[3],
                             debito = -Math.Abs(double.Parse(col[4])),
                             credito = double.Parse(col[5])

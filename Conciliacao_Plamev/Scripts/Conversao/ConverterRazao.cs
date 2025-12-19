@@ -88,23 +88,26 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                 int numeroNota = Array.IndexOf(words, c.prefx);
                 if(numeroNota >= 0)
                 {
-                    string word = words[numeroNota + 1];
-                    string n = word.StartsWith("250") ? word.Substring(2) : word;
-                    n = n.StartsWith("2025/") ? n.Substring(5) : n;
-                    n = n.StartsWith("2025") ? n.Substring(4) : n;
-                    n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
-                    n = n.Replace(".", "");
-                    n = n.TrimStart('0');
-                    if(n.Contains('/'))
-                    {
-                        int slashIndex = n.IndexOf('/');
-                        n = n.Substring(0, slashIndex);
-                    }
-                    n = n.Replace("/", "");
-                    return n;
+                    return ValidarNumero(words[numeroNota + 1]);
                 }
             }
             return "";
+        }
+        public static string ValidarNumero(string word)
+        {
+            string n = word.StartsWith("250") ? word.Substring(2) : word;
+            n = n.StartsWith("2025/") ? n.Substring(5) : n;
+            n = n.StartsWith("2025") ? n.Substring(4) : n;
+            n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
+            n = n.Replace(".", "");
+            n = n.TrimStart('0');
+            if (n.Contains('/'))
+            {
+                int slashIndex = n.IndexOf('/');
+                n = n.Substring(0, slashIndex);
+            }
+            n = n.Replace("/", "");
+            return n;
         }
 
         public static void IniciarSubstituicao()

@@ -241,7 +241,8 @@ namespace Conciliacao_Plamev.Scripts
             {
                 using (var cmd = new SQLiteCommand(DbConnection()))
                 {
-                    cmd.CommandText = "UPDATE Movimento SET dataMov = @dataMov, historico = @historico, valorDebito = @valorDebito, valorCredito = @valorCredito, numNota = @notaRef, dataEncerramento = @dataEncerramento WHERE idx=@Index";
+                    cmd.CommandText = "UPDATE Movimento SET codigoForn = @codigoForn, dataMov = @dataMov, historico = @historico, valorDebito = @valorDebito, valorCredito = @valorCredito, numNota = @notaRef, dataEncerramento = @dataEncerramento WHERE idx=@Index";
+                    cmd.Parameters.AddWithValue("@codigoForn", mov.codigoForn);
                     cmd.Parameters.AddWithValue("@dataMov", mov.dataMov);
                     cmd.Parameters.AddWithValue("@historico", mov.historico);
                     cmd.Parameters.AddWithValue("@valorDebito", mov.debito);

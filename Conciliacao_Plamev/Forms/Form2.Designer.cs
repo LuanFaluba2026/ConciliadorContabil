@@ -99,6 +99,7 @@
             dataGridView1.Size = new Size(1213, 362);
             dataGridView1.TabIndex = 4;
             dataGridView1.CellEndEdit += dataGridView1_CellEndEdit;
+            dataGridView1.CellEnter += dataGridView1_CellEnter;
             dataGridView1.RowValidated += dataGridView1_RowValidated;
             // 
             // EditarButton

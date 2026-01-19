@@ -1,4 +1,5 @@
 ﻿using Conciliacao_Plamev.Scripts;
+using DocumentFormat.OpenXml.Office2010.CustomUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +16,7 @@ namespace Conciliacao_Plamev
 {
     public partial class Form2 : Form
     {
-        public static Form2 form2; 
+        public static Form2 form2;
         public Form2()
         {
             InitializeComponent();
@@ -42,7 +43,6 @@ namespace Conciliacao_Plamev
                 }
                 consultaSaldo.Text = $"Saldo em aberto: R${saldo.ToString("F2")}";
                 dataGridView1.DataSource = movConta.OrderByDescending(x => x.dataEncerramento).ToList();
-                dataGridView1.Columns["codigoForn"].Visible = false;
                 dataGridView1.AutoResizeColumns();
                 dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 dataGridView1.Columns["historico"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -190,7 +190,6 @@ namespace Conciliacao_Plamev
                 MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void dataGridView1_RowValidated(object sender, DataGridViewCellEventArgs e)
         {
             try
@@ -224,9 +223,37 @@ namespace Conciliacao_Plamev
             return true;
         }
         //TORNAR VALOR DEBITO NEGATIVO
+
+        string currentCellValue = "";
+        private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            var cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            if (cell == null) return;
+
+            currentCellValue = cell.ToString();
+        }
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if(Program.ClienteFornecedor() == "Fornecedor")
+            var contas = BancoDeDados.GetContas().ToList();
+            if (dataGridView1.Columns[e.ColumnIndex].Name == "codigoForn")
+            {
+                var cellValue = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                if (cellValue == null)
+                {
+                    dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = currentCellValue;
+                    dataGridView1.CancelEdit();
+                    return;
+                }
+                if (!contas.Any(x => x.codigoForn.Equals(cellValue)) && !string.IsNullOrEmpty(currentCellValue))
+                {
+                    MessageBox.Show("Conta inválida.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = currentCellValue;
+                    dataGridView1.CancelEdit();
+                    return;
+                }
+            }
+
+            if (Program.ClienteFornecedor() == "Fornecedor")
             {
                 if (dataGridView1.Columns[e.ColumnIndex].Name == "debito")
                 {
@@ -244,7 +271,8 @@ namespace Conciliacao_Plamev
                         cell.Value = Math.Abs(valorC);
                     }
                 }
-            } else if(Program.ClienteFornecedor() == "Cliente")
+            }
+            else if (Program.ClienteFornecedor() == "Cliente")
             {
                 if (dataGridView1.Columns[e.ColumnIndex].Name == "debito")
                 {

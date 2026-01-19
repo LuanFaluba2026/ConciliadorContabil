@@ -35,7 +35,7 @@ namespace Conciliacao_Plamev
             }
             else
             {
-                MostrarContas(BancoDeDados.GetContas().Where(x => x.nomeForn.Contains(pesquisarTextBox.Text.ToUpper())).ToList());
+                MostrarContas(BancoDeDados.GetContas().Where(x => x.nomeForn.Contains(pesquisarTextBox.Text.ToUpper(), StringComparison.OrdinalIgnoreCase)).ToList());
             }
         }
 

@@ -126,7 +126,7 @@ namespace Conciliacao_Plamev
 
                         await Task.Run(() =>
                         {
-                            if (Path.GetExtension(razaoPath) == ".csv")
+                            if (Path.GetExtension(razaoPath).Equals(".csv", StringComparison.OrdinalIgnoreCase))
                             {
                                 ConverterRazaoSenior.Conversao();
                                 SheetLayout.CreateSheet();

@@ -19,7 +19,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                 string path = Form1.razaoPath;
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 string[] lines = File.ReadAllLines(path, Encoding.GetEncoding("Windows-1252"));
-
+                var listaMov = new List<Movimento>();
                 foreach(string line in lines.Skip(1))
                 {
                     string[] col = line.Split(";");
@@ -39,7 +39,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                         contaAnalitica = "",
                         nomeForn = nomeFornecedor
                     });
-                    BancoDeDados.AddMovimento(new Movimento()
+                    listaMov.Add(new Movimento()
                     {
                         codigoForn = codigoFornecedor,
                         dataMov = dataLançamento,
@@ -49,6 +49,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                         notaRef = ConverterRazao.BuscarNfRef(historicoLancamento)
                     });
                 }
+                BancoDeDados.AddMovimentoLote(listaMov);
             }
             catch(Exception ex)
             {

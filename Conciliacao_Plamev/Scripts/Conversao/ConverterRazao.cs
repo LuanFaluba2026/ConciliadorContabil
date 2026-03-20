@@ -26,6 +26,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
 
                     Form1.Instance.SetMaxProgressBar(ws.RowsUsed().Count());
                     int indexLanc = 0;
+                    var listaMov = new List<Movimento>();
                     for (int i = 2; i <= ws.RowsUsed().Count(); i++)
                     {
                         Form1.Instance.StepProgressBar();
@@ -55,7 +56,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                             }
                             else //Se a conta não existir no banco de dados, considera a conta como movimentação.
                             {
-                                BancoDeDados.AddMovimento(new Movimento()
+                                listaMov.Add(new Movimento()
                                 {
                                     codigoForn = codigoFornecedor,
                                     dataMov = dataLançamento,
@@ -68,6 +69,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                             }
                         }
                     }
+                    BancoDeDados.AddMovimentoLote(listaMov);
                 }
 
                 Form1.Instance.SetProgressBarValue(0);
@@ -100,6 +102,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
             n = n.StartsWith("2025") ? n.Substring(4) : n;
             n = n.EndsWith("/2025") ? n.Replace("/2025", "") : n;
             n = n.Replace(".", "");
+            n = n.Replace(",", "");
             n = n.TrimStart('0');
             if (n.Contains('/'))
             {
@@ -115,14 +118,17 @@ namespace Conciliacao_Plamev.Scripts.Conversao
             List<Movimento> mov = BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month == Form1.competencia.Month)).ToList();
             List<Movimento> movEncerrados = BancoDeDados.GetMovimentos().Where(x => !String.IsNullOrEmpty(x.dataEncerramento) && (DateTime.Parse(x.dataEncerramento).Year == Form1.competencia.Year && DateTime.Parse(x.dataEncerramento).Month == Form1.competencia.Month)).ToList();
 
+            var indexes = new List<long>();
             foreach(Movimento m in mov)
             {
-                BancoDeDados.ExcluirMovimento(m.idx);
+                indexes.Add(m.idx);
             }
+            BancoDeDados.ExcluirMovimentoLote(indexes);
             foreach(Movimento m in movEncerrados)
             {
                 BancoDeDados.UpdateMovimento(new Movimento()
                 {
+                    codigoForn = m.codigoForn,
                     dataMov = m.dataMov,
                     historico = m.historico,
                     debito = m.debito,

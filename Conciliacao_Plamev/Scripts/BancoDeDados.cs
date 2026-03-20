@@ -1,43 +1,36 @@
 ﻿using Conciliacao_Plamev.Forms;
-using DocumentFormat.OpenXml.Office.Word;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System;
-using System.Collections.Generic;
-using System.Data;
+using Conciliacao_Plamev.Scripts.Conversao;
 using System.Data.SQLite;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Conciliacao_Plamev.Scripts
 {
     public class BancoDeDados
     {
-        private static SQLiteConnection? sqliteConnection;
 
-        public static string _empresa;
-        public static string empresa {
+        public static string? _empresa;
+        public static string empresa
+        {
             get { return Directory.GetFiles(Form1.dbPath).FirstOrDefault(x => x.Contains(_empresa, StringComparison.OrdinalIgnoreCase) && !x.Contains("BACKUP")) ?? ""; }
             set { _empresa = value; }
         }
         private static SQLiteConnection DbConnection()
         {
-            sqliteConnection = new SQLiteConnection($"Data Source={empresa}; Version=3");
-            sqliteConnection.Open();
-            return sqliteConnection;
+            var conn = new SQLiteConnection($"Data Source={empresa}; Version=3");
+            conn.Open();
+            return conn;
         }
         public static void CriarBancoSQlite(string tipo = "Fornecedor")
         {
             try
             {
-                string combinedPath = Path.Combine(Form1.dbPath,$"{_empresa}_{tipo}.sqlite");
+                string combinedPath = Path.Combine(Form1.dbPath, $"{_empresa}_{tipo}.sqlite");
                 if (!File.Exists(combinedPath))
                     SQLiteConnection.CreateFile(combinedPath);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static void ExcluirBancoSQlite(string empresa)
@@ -50,7 +43,7 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static void CriarTabelaSQLite()
@@ -69,14 +62,13 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static void AddMovimento(Movimento mov)
         {
             try
             {
-                int quantidadeDB = BancoDeDados.GetMovimentos().Count + 1;
                 using (var cmd = DbConnection().CreateCommand())
                 {
                     Debug.WriteLine($"{mov.codigoForn} | {mov.dataMov} | {mov.historico} | {mov.notaRef} | {mov.credito} | {mov.debito}");
@@ -94,8 +86,28 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+        public static void AddMovimentoLote(List<Movimento> movs)
+        {
+            using var conn = DbConnection();
+            using var transaction = conn.BeginTransaction();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "INSERT OR IGNORE INTO Movimento(idx, codigoForn, dataMov, historico, valorDebito, valorCredito, numNota, dataEncerramento) SELECT IFNULL(MAX(idx), 0) + 1, @codigoForn, @dataMov, @historico, @valorDebito, @valorCredito, @numNota, @dataEncerramento FROM Movimento";
+            foreach(var mov in movs)
+            {
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@codigoForn", mov.codigoForn);
+                cmd.Parameters.AddWithValue("@dataMov", mov.dataMov);
+                cmd.Parameters.AddWithValue("@historico", mov.historico);
+                cmd.Parameters.AddWithValue("@valorDebito", mov.debito);
+                cmd.Parameters.AddWithValue("@valorCredito", mov.credito);
+                cmd.Parameters.AddWithValue("@numNota", mov.notaRef);
+                cmd.Parameters.AddWithValue("@dataEncerramento", mov.dataEncerramento);
+                cmd.ExecuteNonQuery();
+            }
+            transaction.Commit();
         }
         public static void AddConta(CodigoContas conta)
         {
@@ -112,7 +124,7 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static void RemoveConta(string codigoConta)
@@ -128,26 +140,31 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        public static void EncerrarMovimento(string codigo, string historico, string data)
+        public static void EncerrarMovimentosLote(List<MovimentoEncerrado> movimentosEncerrados)
         {
             try
             {
-                using (var cmd = new SQLiteCommand(DbConnection()))
+                using var conn = DbConnection();
+                using var transaction = conn.BeginTransaction();
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "UPDATE Movimento SET dataEncerramento=@DataEncerramento WHERE codigoForn=@Codigo AND historico=@Historico";
+                foreach(var mov in movimentosEncerrados)
                 {
-                    cmd.CommandText = "UPDATE Movimento SET dataEncerramento=@DataEncerramento WHERE codigoForn=@Codigo AND historico=@Historico";
-                    cmd.Parameters.AddWithValue("@DataEncerramento", data);
-                    cmd.Parameters.AddWithValue("@Historico", historico);
-                    cmd.Parameters.AddWithValue("@Codigo", codigo);
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@DataEncerramento", mov.DataMov);
+                    cmd.Parameters.AddWithValue("@Historico", mov.Historico);
+                    cmd.Parameters.AddWithValue("@Codigo", mov.CodigoForn);
                     cmd.ExecuteNonQuery();
                 }
+                transaction.Commit();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -184,7 +201,7 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw new Exception(ex.Message);
             }
         }
@@ -215,7 +232,7 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
         }
@@ -230,9 +247,31 @@ namespace Conciliacao_Plamev.Scripts
                     cmd.Parameters.AddWithValue("@Index", index);
                     cmd.ExecuteNonQuery();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        public static void ExcluirMovimentoLote(List<long> indexes)
+        {
+            try
+            {
+                using var conn = DbConnection();
+                using var transaction = conn.BeginTransaction();
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "DELETE FROM Movimento Where idx=@Index";
+                foreach(var index in indexes)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@Index", index);
+                    cmd.ExecuteNonQuery();
+                }
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static void UpdateMovimento(Movimento mov, long index)
@@ -252,9 +291,10 @@ namespace Conciliacao_Plamev.Scripts
                     cmd.Parameters.AddWithValue("@Index", index);
                     cmd.ExecuteNonQuery();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -272,7 +312,7 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static void RemovePrefixo(string prefixo)
@@ -288,7 +328,7 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static List<Prefixos> GetPrefixos()
@@ -316,7 +356,7 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 throw new Exception(ex.Message);
             }
         }
@@ -331,7 +371,7 @@ namespace Conciliacao_Plamev.Scripts
                     cmd.CommandText = "UPDATE Movimento SET valorCredito = ABS(valorCredito)";
                     cmd.ExecuteNonQuery();
                 }
-                else if(Program.ClienteFornecedor() == "Cliente")
+                else if (Program.ClienteFornecedor() == "Cliente")
                 {
                     cmd.CommandText = "UPDATE Movimento SET valorDebito = ABS(valorDebito);";
                     cmd.ExecuteNonQuery();

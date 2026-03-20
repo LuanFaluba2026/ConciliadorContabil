@@ -13,6 +13,14 @@ using System.Threading.Tasks;
 
 namespace Conciliacao_Plamev.Scripts.Conversao
 {
+    public class MovimentoEncerrado
+    {
+        public required string CodigoForn { get; set; }
+        public required string Historico { get; set; }
+        public required string DataMov { get; set; }
+
+    }
+
     public class SheetLayout
     {
 
@@ -46,6 +54,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
 
                 //Passa pelos movimentos que contém débito e crédito no periodo (baseado no número da nota e valor), e encerra ele no banco de dados
                 //Atribuíndo a data de movimentação do débito na data de encerramento do crédito. Vice-versa
+                var movimentosEncerrar = new List<MovimentoEncerrado>();
                 foreach (var grupo in movEncerrar.GroupBy(x => x.notaRef))
                 {
                     if(Program.ClienteFornecedor() == "Fornecedor")
@@ -67,9 +76,19 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                                 if (Math.Abs(c.credito + somaDeb) < 0.1 && c.notaRef == movDebAtual[0].notaRef)
                                 {
                                     Form1.Instance.AtualizarLog($"Credito na conta {c.codigoForn} da nota {c.notaRef} encerrado com {movDebAtual.Count} débitos.");
-                                    BancoDeDados.EncerrarMovimento(c.codigoForn, c.historico, movDebAtual[movDebAtual.Count - 1].dataMov);
+                                    movimentosEncerrar.Add(new MovimentoEncerrado
+                                    {
+                                        CodigoForn = c.codigoForn!,
+                                        Historico = c.historico!,
+                                        DataMov = movDebAtual[movDebAtual.Count - 1].dataMov!
+                                    });
                                     foreach(var mov in movDebAtual)
-                                        BancoDeDados.EncerrarMovimento(mov.codigoForn, mov.historico, movDebAtual[movDebAtual.Count - 1].dataMov);
+                                        movimentosEncerrar.Add(new MovimentoEncerrado
+                                        {
+                                            CodigoForn = mov.codigoForn!,
+                                            Historico = mov.historico!,
+                                            DataMov = movDebAtual[movDebAtual.Count - 1].dataMov!
+                                        });
                                 }
                             }
                         }
@@ -93,9 +112,20 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                                 if (Math.Abs(d.debito + somaCred) < 0.1 && d.notaRef == movCredAtual[0].notaRef)
                                 {
                                     Form1.Instance.AtualizarLog($"Débito na conta {d.codigoForn} da nota {d.notaRef} encerrado com {movCredAtual.Count} creditos.");
-                                    BancoDeDados.EncerrarMovimento(d.codigoForn, d.historico, movCredAtual[movCredAtual.Count - 1].dataMov);
+
+                                    movimentosEncerrar.Add(new MovimentoEncerrado
+                                    {
+                                        CodigoForn = d.codigoForn!,
+                                        Historico = d.historico!,
+                                        DataMov = movCredAtual[movCredAtual.Count - 1].dataMov!
+                                    });
                                     foreach (var mov in movCredAtual)
-                                        BancoDeDados.EncerrarMovimento(mov.codigoForn, mov.historico, movCredAtual[movCredAtual.Count - 1].dataMov);
+                                        movimentosEncerrar.Add(new MovimentoEncerrado
+                                        {
+                                            CodigoForn = mov.codigoForn!,
+                                            Historico = mov.historico!,
+                                            DataMov = movCredAtual[movCredAtual.Count - 1].dataMov!
+                                        });
                                 }
                             }
                         }
@@ -106,6 +136,7 @@ namespace Conciliacao_Plamev.Scripts.Conversao
                         return;
                     }
                 }
+                BancoDeDados.EncerrarMovimentosLote(movimentosEncerrar);
                 //Gera o registro da conta somente se pelo menos um movimento ainda esteja sem encerrar.
                 List<Movimento> movPorConta= BancoDeDados.GetMovimentos().Where(x => (DateTime.Parse(x.dataMov).Year < Form1.competencia.Year ||
                                                                                     (DateTime.Parse(x.dataMov).Year == Form1.competencia.Year && DateTime.Parse(x.dataMov).Month <= Form1.competencia.Month)) && 

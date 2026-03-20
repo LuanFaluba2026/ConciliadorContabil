@@ -62,7 +62,7 @@ namespace Conciliacao_Plamev.Scripts
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"ERRO: {ex.Message} em {ex.StackTrace}", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
